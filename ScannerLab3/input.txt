@@ -1,0 +1,32 @@
+/*
+*       func with case
+*/
+
+int func1(int h, bool gh) {
+
+        const int qwe = 123;
+        int p=57, t = 2;
+        switch (t+123)
+        	{
+        	case 6:
+        		int klllp = t * 12;
+        		break;
+        	case 15:
+        	    p = 14 / t;
+        	    break;
+		default:  break;
+        	}     
+return t+p;
+    }
+int func2() {
+const int qwe = 123;
+return 56;
+}
+bool main ()    {      // main 
+   bool yu =  true;
+   func1(26, true);
+   int b = func1(func1(56, false), true);
+	return yu;
+    }
+
+
