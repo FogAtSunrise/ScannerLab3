@@ -25,17 +25,17 @@ int main(int argc, char* argv[]) {
      * Запускаем анализатор и выводим соотвествующие результат сообщения
      */
     try {
-        std::cout << "START" << std::endl;
+      //  std::cout << "START" << std::endl;
         analyser.analysis();
-        std::cout << "Successfully!" << std::endl;
+     //   std::cout << "Successfully!" << std::endl;
 
     }
     catch (std::runtime_error& error) {
         std::cout << error.what();
         std::cout << "*Errors*" << std::endl;
     }
-    std::cout << "FINISH" << std::endl;
+  //  std::cout << "FINISH" << std::endl;
   
-    st->Print();
+ //   st->Print();
     return 0;
 }

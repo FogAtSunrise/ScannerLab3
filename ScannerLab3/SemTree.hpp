@@ -64,7 +64,7 @@ static stack<SemTree*> newBlock;
 
 	
 	SemTree* SemGetFunc(Lexem a);
-	SemTree* prologue(Lexem a, TypeObject t, Data_Value mean);//выделение памяти
+	SemTree* prologue(Lexem a, TypeObject t, Data_Value mean, Lexem a1);//выделение памяти
 	SemTree* epilogue();
 	static TypeVar getLexTypeToVar(int type); //узнать тип переменной
 	static TypeVar FromConstToType(int type); //узнать тип константы
@@ -76,7 +76,7 @@ static stack<SemTree*> newBlock;
 	void semConsInSwich(int typeVar, Lexem lex);
 	void SemFinishFunc(SemTree* a);// установить текущий узел дерева
 	SemTree* GetCur(void);// получить значение текущего узла дерева
-	SemTree* SemAdd(Lexem a, TypeObject t);// занесение идентификатора a в таблицу с типом t
+	SemTree* SemAdd(Lexem a, TypeObject t, Lexem a1);// занесение идентификатора a в таблицу с типом t
 	void SemSetTypeVar(SemTree* Addr, int t);// установить тип простой t переменной 
 	int SemGetTypeV(Lexem a);//проверяет,  описана ли переменная и если да, возвращает ее тип
 	int SemGetTypeF(Lexem a);//проверяет,  описана ли функция и если да, возвращает ее тип

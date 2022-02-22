@@ -2,7 +2,7 @@
 
 #define max(a,b) a<b? b : a
 
-SemTree* SemTree::Cur = nullptr; //текущий узел
+SemTree* SemTree::Cur = NULL; //текущий узел
 
 SemTree::SemTree(SemTree* l, SemTree* r, SemTree* u, Node* d)
 // конструктор узла с заданными связями и данными
@@ -53,10 +53,12 @@ SemTree* SemTree::FindUp(SemTree* From, Lexem id)
 void SemTree::Print()
 // отладочная программа печати дерева
 {
-	std::cout << "\nВершина с данными " << n->id.second<< "----->" << std::endl;
+	std::cout << "\nВершина с данными " << n->id.second << " [тип:\n"; 
+//	if(n->typeVar== TypeVar->TypeDef)
+	//<< "] ----->" << std::endl;
 	
-	if (Left != NULL) std::cout << " слева данные " << Left->n->id.second << std::endl;
-	if (Right != NULL) std::cout << " справа данные " << Right->n->id.second << std::endl;
+	if (Left != NULL) std::cout << "	--слева данные " << Left->n->id.second << std::endl;
+	if (Right != NULL) std::cout << "	--справа данные " << Right->n->id.second << std::endl;
 	
 	if (Right != NULL) Right->Print();
 	if (Left != NULL) Left->Print();
@@ -125,9 +127,9 @@ SemTree* SemTree::OneLevelFind(SemTree* From, Lexem id)
 SemTree::~SemTree()
 // деструктор 
 {
-	if (Left != nullptr)
+	if (Left != NULL)
 		delete Left;
-	if (Right != nullptr)
+	if (Right != NULL)
 		delete Right;
 	delete n;
 }
@@ -157,8 +159,10 @@ SemTree* SemTree::GetCur(void)
 }
 
 stack<SemTree*> SemTree::newBlock;
-SemTree* SemTree::prologue(Lexem a, TypeObject t, Data_Value mean)
+SemTree* SemTree::prologue(Lexem a, TypeObject t, Data_Value mean, Lexem a1)
 {
+
+	SemTree* dop;
 	if (a.first == tFls) //если получена открытая скобка
 	{
 		newBlock.push(Cur);
@@ -167,26 +171,46 @@ SemTree* SemTree::prologue(Lexem a, TypeObject t, Data_Value mean)
 		b.typeObject = EMPTY; // пустая вершина
 		Cur->SetRight(&b); // сделали пустую вершину
 		Cur = Cur->Right;
-		return Cur;
+		cout << "\nВыделена память под блок " << a.second <<endl;
+		dop= newBlock.top();
 	}
-	else if (a.first == tFps) //если получена открытая скобка
+	else 
 	{
-		if(newBlock.empty())
-		SemTree* Cur1 = newBlock.pop();
-		Node b;
-		b.id.second = "";
-		b.typeObject = EMPTY; // пустая вершина
-		Cur->SetRight(&b); // сделали пустую вершину
-		Cur = Cur->Right;
-		return Cur;
+		SemTree* n = SemAdd( a, t, a1);
+	
+		dop= n;
+		//n.data.
 	}
-		//tFps
-
+	cout << "-----------------START TREE-----------------------" << endl;
+	Print();
+	cout << "-----------------FINISH TREE-----------------------" << endl << endl;
+	
+	return dop;
 }
 
-SemTree* SemTree::epilogue() {}
+SemTree* SemTree::epilogue() {
+	if (!newBlock.empty())
+	{
 
-SemTree* SemTree::SemAdd(Lexem a, TypeObject t)
+		Cur = newBlock.top();
+		newBlock.pop();
+		//закомментированный код позволяет оставлять параметры 
+		/*SemTree* dop = Cur->Right;
+		for (int i = 0; i < Cur->n->param; i++)
+			dop = dop->Left; 
+		dop->Left= nullptr;*/
+		cout << "Удален блок\n" << endl;
+		Cur->Right = nullptr;
+	}
+	cout << "-----------------START TREE-----------------------" << endl;
+	Print();
+
+
+	cout << "-----------------FINISH TREE-----------------------" << endl << endl;
+	
+	return Cur; }
+
+SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 // занесение идентификатора в таблицу с типом t
 {
 	if (ControlIdent(Cur, a))
@@ -202,12 +226,20 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t)
 	Node b;
 	if (t == itsFunct)
 	{
+		
 		b.id.second = a.second;
 		b.typeObject = t;
 		b.param = 0; // количество параметров функции
 		Cur->SetLeft(&b); // сделали вершину - функцию
 		Cur = Cur->Left;
-		return Cur;
+		newBlock.push(Cur);
+		b.id.second = "";
+		b.typeObject = EMPTY; // пустая вершина
+		Cur->SetRight(&b); // сделали пустую вершину
+		Cur = Cur->Right;
+		cout << "Добавлен идентификатор функции: " << a.second<<" Тип: "<< a1.second << endl << endl;
+		return newBlock.top();
+		
 	}
 	else
 	{
@@ -215,6 +247,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t)
 		b.typeObject = t;
 		Cur->SetLeft(&b); // сделали вершину - переменной или константы
 		Cur = Cur->Left;
+		cout << "Добавлен идентификатор: " << a.second << " Тип: " << a1.second << endl << endl;
 		return Cur;
 	}
 }
@@ -285,7 +318,8 @@ int SemTree::ControlIdent(SemTree* Addr, Lexem a)
 int SemTree::SemGetTypeV(Lexem a)
 // Проверка идентификатора а на повторное описание внутри блока.
 {
-	SemTree* dop = OneLevelFind(Cur, a);
+	//SemTree* dop = OneLevelFind(Cur, a);
+	SemTree* dop = FindUp(Cur, a);
 	if (dop == NULL) PrintError("Несуществующий идентификатор", a);;
 	return dop->n->typeVar;
 }
@@ -313,7 +347,8 @@ SemTree* SemTree::SemGetFunc(Lexem a)
 int SemTree::SemParamFunc(int type)
 
 {
-	if (Cur->Left == NULL)
+
+/*	if (Cur->Left == NULL)
 	{
 		std::cout << "Ошибка параметров функции(меньше, чем введено)" << std::endl;
 		exit(0);
@@ -330,8 +365,10 @@ int SemTree::SemParamFunc(int type)
 			std::cout << "Несоответствие типов формальных и фактических параметров функции " << std::endl;
 			exit (0);
 		}
+		
 	}
-
+*/
+	return 1;
 }
 //перевести тип в рабочий вид
 TypeVar SemTree::getLexTypeToVar(int type)
