@@ -53,18 +53,35 @@ SemTree* SemTree::FindUp(SemTree* From, Lexem id)
 void SemTree::Print()
 // отладочная программа печати дерева
 {
-	std::cout << "\nВершина с данными " << n->id.second << " [тип:\n"; 
+	
+	std::cout << "\n(*)вершина ";
+	if (n->id.second == "")
+	std::cout << "EMPTY -->" << endl;
+	else
+	std::cout<<  n->id.second << " [тип: " << NameType(n->typeVar) << ", значение:"<< valueString(this)  <<"]-->" << endl;
 //	if(n->typeVar== TypeVar->TypeDef)
 	//<< "] ----->" << std::endl;
 	
-	if (Left != NULL) std::cout << "	--слева данные " << Left->n->id.second << std::endl;
-	if (Right != NULL) std::cout << "	--справа данные " << Right->n->id.second << std::endl;
+	if (Left != NULL) std::cout << "	--левый потомок " << Left->n->id.second << std::endl;
+	if (Right != NULL) std::cout << "	--правый потомок " << ((Right->n->id.second == "") ? "EMPTY" : Right->n->id.second) << std::endl;
 	
 	if (Right != NULL) Right->Print();
 	if (Left != NULL) Left->Print();
 
 }
 
+string SemTree::valueString(SemTree* Addr)
+{
+	if (Addr->n->init == false)
+		return "..";
+	else
+	if (Addr->n->typeVar == TTBool)
+		return (Addr->n->data.Data_bool==true)? "true":"false";
+	else
+		if (Addr->n->typeVar == TTInt)
+			return std::to_string(Addr->n->data.Data_int);
+		else		return " ";
+}
 //получить адрес данных узла
 Node* SemTree::getData()
 {
@@ -75,32 +92,33 @@ Node* SemTree::getData()
 
 TypeVar SemTree::FromConstToType(int type)
 {
+	
 	switch (type)
 	{
 	case tFalse:
-		return TBool;
+		return TTBool;
 	case tTrue:
-		return TBool;
+		return TTBool;
 	case constInt:
-		return TInt;
+		return TTInt;
 	case constHex:
-		return TInt;
+		return TTInt;
 	default:
 		break;
 	}
 }
 
 //проверка, можно ли присвоить лексеме указанный тип
-void SemTree::isAssignable(int typeVar, Lexem lex)
+void SemTree::isAssignable(TypeVar typeVar, Lexem lex)
 {
 	SemTree* v = Cur->SemGetVar(lex);
-		if (v->getVarType() < typeVar)
+		if (v->n->typeVar < typeVar)
 			PrintError("Невозможно присвоить результат выражения переменной без потерь\t ", lex);
 
 }
 
 //проверка для switch
-void SemTree::semConsInSwich(int typeVar, Lexem lex)
+void SemTree::semConsInSwich(TypeVar typeVar, Lexem lex)
 {
 		if (FromConstToType(lex.first) > typeVar)
 			PrintError("Невозможно получить из выражения указанное значение\t ", lex);
@@ -176,14 +194,14 @@ SemTree* SemTree::prologue(Lexem a, TypeObject t, Data_Value mean, Lexem a1)
 	}
 	else 
 	{
-		SemTree* n = SemAdd( a, t, a1);
+		SemTree* n = SemAdd( a, t, a1);///////////////////////////////////
 	
 		dop= n;
 		//n.data.
 	}
-	cout << "-----------------START TREE-----------------------" << endl;
-	Print();
-	cout << "-----------------FINISH TREE-----------------------" << endl << endl;
+//	cout << "-----------------START TREE-----------------------" << endl;
+	//Print();
+	//cout << "-----------------FINISH TREE-----------------------" << endl << endl;
 	
 	return dop;
 }
@@ -199,14 +217,12 @@ SemTree* SemTree::epilogue() {
 		for (int i = 0; i < Cur->n->param; i++)
 			dop = dop->Left; 
 		dop->Left= nullptr;*/
-		cout << "Удален блок\n" << endl;
+		cout << "СОБЫТИЕ: Удален блок-----------------\n" << endl;
 		Cur->Right = nullptr;
 	}
-	cout << "-----------------START TREE-----------------------" << endl;
-	Print();
-
-
-	cout << "-----------------FINISH TREE-----------------------" << endl << endl;
+	//cout << "-----------------START TREE-----------------------" << endl;
+	//Print();
+	//cout << "-----------------FINISH TREE-----------------------" << endl << endl;
 	
 	return Cur; }
 
@@ -229,6 +245,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 		
 		b.id.second = a.second;
 		b.typeObject = t;
+		b.typeVar = getLexTypeToVar(a1.first); 
 		b.param = 0; // количество параметров функции
 		Cur->SetLeft(&b); // сделали вершину - функцию
 		Cur = Cur->Left;
@@ -237,7 +254,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 		b.typeObject = EMPTY; // пустая вершина
 		Cur->SetRight(&b); // сделали пустую вершину
 		Cur = Cur->Right;
-		cout << "Добавлен идентификатор функции: " << a.second<<" Тип: "<< a1.second << endl << endl;
+		cout << "\nСОБЫТИЕ: Добавлен идентификатор функции: " << a.second<<" Тип: "<< a1.second <<"----------------"<< endl << endl;
 		return newBlock.top();
 		
 	}
@@ -245,9 +262,10 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 	{
 		b.id.second = a.second; 
 		b.typeObject = t;
+		b.typeVar = getLexTypeToVar(a1.first); 
 		Cur->SetLeft(&b); // сделали вершину - переменной или константы
 		Cur = Cur->Left;
-		cout << "Добавлен идентификатор: " << a.second << " Тип: " << a1.second << endl << endl;
+		cout << "\nСОБЫТИЕ: Добавлен идентификатор: " << a.second << " Тип: " << a1.second << endl << endl;
 		return Cur;
 	}
 }
@@ -267,8 +285,22 @@ SemTree* SemTree::SemAddBlock()
 		return semTreeVert;
 }
 
+string SemTree::NameType(TypeVar type)
+{
+	switch (type)
+	{  
+	case TTBool:
+		return "bool";
+	case TTInt:
+		return "int";
+	default:
+		return "void";
+		break;
+	}
+}
+
 // установить тип t для переменной или функции по адресу Addr
-void SemTree::SemSetTypeVar(SemTree* Addr, int t)
+void SemTree::SemSetTypeVar(SemTree* Addr, TypeVar t)
 {
 	Addr->n->typeVar = t;
 
@@ -289,6 +321,38 @@ void SemTree::SemControlCountParam(SemTree* Addr, int num)
 		PrintError("Число фактических параметров не совпадает с числом формальных ", Addr->n->id);
 }
 
+//присвоить идентификатору новое значение
+void SemTree::SetValueIden(Lexem a, DataTypeAndValue val)
+{
+	SemTree* addr = SemGetVar(a);
+	if (addr != NULL  )
+	{
+		addr->n->data = val.data;
+		addr->n->init = true;
+	}
+	if(val.type > addr->n->typeVar)
+		PrintError("ТИПЫ НЕ СООТВЕТСТВУЮТ", a);
+
+	cout << "СОБЫТИЕ: присвоено новое значение переменной " << a.second << " [тип: " << NameType(addr->n->typeVar) << ", значение:"<< valueString(addr) << "]" << endl;
+
+
+
+	//cout << "-----------------START TREE-----------------------" << endl;
+	//Print();
+	//cout << "-----------------FINISH TREE-----------------------" << endl << endl;
+}
+//получить значение указанного идентификатора
+DataTypeAndValue SemTree::GetValueIden(Lexem a)
+{
+	SemTree* addr = SemGetVar(a);
+	if (addr == NULL)
+		PrintError("Несуществующая переменная", a);
+	else
+		if (addr->n->init==true)
+			return DataTypeAndValue{ addr->n->data, addr->n->typeVar };
+		else PrintError("Не инициализированная переменная", a);
+
+}
 
 // найти в таблице переменную с именем a
 // и вернуть ссылку 
@@ -315,7 +379,7 @@ int SemTree::ControlIdent(SemTree* Addr, Lexem a)
 }
 
 
-int SemTree::SemGetTypeV(Lexem a)
+TypeVar SemTree::SemGetTypeV(Lexem a)
 // Проверка идентификатора а на повторное описание внутри блока.
 {
 	//SemTree* dop = OneLevelFind(Cur, a);
@@ -324,7 +388,7 @@ int SemTree::SemGetTypeV(Lexem a)
 	return dop->n->typeVar;
 }
 
-int SemTree::SemGetTypeF(Lexem a)
+TypeVar SemTree::SemGetTypeF(Lexem a)
 // Проверка идентификатора на существование, возвращает тип 
 {
 	SemTree* dop = FindUp(Cur, a);
@@ -376,34 +440,34 @@ TypeVar SemTree::getLexTypeToVar(int type)
 	switch (type)
 	{
 	case tBool:
-		return TBool;
+		return TTBool;
 		break;
 	case tInt:
-		return TInt;
+		return TTInt;
 		break;
 	default:
-		return TypeDef;
+		return TTypeDef;
 		break;
 	}
 }
 //получить тем узла
-int SemTree::getVarType() {
+TypeVar SemTree::getVarType() {
 	return n->typeVar;
 }
 
 
 //возвращает результат арифметической операции между значениями
-int SemTree::semResType(int typeA, int typeB)
+TypeVar SemTree::semResType(TypeVar typeA, TypeVar typeB)
 {
 	if (typeA == typeB)
 		return typeA;
 
-	if (typeA < TypeDef && typeB < TypeDef)
+	if (typeA  >TTypeDef && typeB > TTypeDef)
 	{
 		return max(typeA, typeB);
 	}
 	else
 	{
-		return TypeDef;
+		return TTypeDef;
 	}
 }

@@ -67,17 +67,18 @@ private:
      * Функции для синтаксического анализа
      */
   
-    int logI();
+    DataTypeAndValue logI();
     
-    int logNe();
+    DataTypeAndValue logNe();
     void oneParam(SemTree* cur);
-    int eqFunc1();
+    DataTypeAndValue eqFunc1();
 
-    int eqFunc2();
+    DataTypeAndValue eqFunc2();
+    DataTypeAndValue eqFunc3();
 
-    int add();
+    DataTypeAndValue add();
 
-    int multiplier();
+    DataTypeAndValue multiplier();
 
     void checkLexeme();
 
@@ -91,22 +92,25 @@ private:
 
     void operatorAnalysis();
 
-    void dataAnalysis(TypeObject obj, int type);
+    void dataAnalysis(TypeObject obj, TypeVar type);
     int listParamFunc();
 
     void namedConstantAnalise();
 
-    void variableAnalysis(TypeObject obj, int type);
+    void variableAnalysis(TypeObject obj, TypeVar type);
 
-    int elementaryExpressionAnalysis();
+    DataTypeAndValue elementaryExpressionAnalysis();
 
     void cycleAnalysis();
 
     void operatorCase();
 
-    int expressionAnalysis();
+    DataTypeAndValue expressionAnalysis();
 
 public: void setSemTree(SemTree* root);
+      
+
+    //  int getValue(DataTypeAndValue);
 };
 
 #endif //SRC_SYNTAXANALYSER_H

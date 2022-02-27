@@ -90,8 +90,9 @@ void Analisys::checkLexeme() {
         //добавляем функцию в дерево
         SemTree* cur = root->prologue(lexemes[this->pointer + 1], itsFunct, Data_Value{ 1 }, lexemes[this->pointer]);
         
-        int type = root->getLexTypeToVar(lexemes[this->pointer].first);
-        root->SemSetTypeVar(cur, type);
+   //    root->getLexTypeToVar(lexemes[this->pointer].first);
+
+       // root->SemSetTypeVar(cur, root->getLexTypeToVar(lexemes[this->pointer].first));
 
         this->pointer++;
         functionAnalysis(cur);
@@ -109,9 +110,9 @@ void Analisys::checkLexeme() {
         //добавляем функцию в дерево
         lex = getNextLexeme();
         if (lex.first == tInt || lex.first == tBool || lex.first == tShort || lex.first == tLong) {
-            int type = root->getLexTypeToVar(lexemes[this->pointer].first);
+           // int type = root->getLexTypeToVar(lexemes[this->pointer].first);
             this->pointer++;
-            dataAnalysis(itsConst, type);
+            dataAnalysis(itsConst, root->getLexTypeToVar(lexemes[this->pointer].first));
 
 
         }
@@ -124,9 +125,9 @@ void Analisys::checkLexeme() {
      */
 
     else if (lex.first == tInt || lex.first == tBool || lex.first == tShort || lex.first == tLong) {
-        int type = root->getLexTypeToVar(lexemes[this->pointer].first);
+        //int type = root->getLexTypeToVar(lexemes[this->pointer].first);
         this->pointer++;
-        dataAnalysis(itsVar, type);
+        dataAnalysis(itsVar, root->getLexTypeToVar(lexemes[this->pointer].first));
     }
     else {
 
@@ -145,7 +146,7 @@ void Analisys::functionAnalysis(SemTree* cur) {
     // Id
     if (lex.first != tId && lex.first != tMain) showError("Error, expected: Id", lex);
 
-    int type = root->SemGetTypeF(lex);
+    TypeVar type = root->SemGetTypeF(lex);
 
     lex = getNextLexeme();
     // expect '('
@@ -184,9 +185,11 @@ void Analisys::functionAnalysis(SemTree* cur) {
     Lexem ret = lex;
     //анализируем выражение после ретурн
     lex = getNextLexeme();
-    if (type < expressionAnalysis())
-        root->PrintError("Тип выражения не соответствует типу возвращаемого функцией", ret);
-
+    if (type < expressionAnalysis().type)
+    {//cout << type << " " << root->FromConstToType(expressionAnalysis()) << endl;
+        root->PrintError("Тип выражения не соответствует типу возвращаемого функцией ", ret);
+        
+    }
     //проверяем, что после return есть точка с запятой
     lex = getCurrentLexeme();
     // expect ';'
@@ -211,8 +214,8 @@ void Analisys::oneParam(SemTree* cur)
                 //добавляем параметр функции в дерево
             SemTree* var = root->prologue(lex, itsVar, Data_Value{ 1 }, lexemes[this->pointer - 1]);
 
-            int type = root->getLexTypeToVar(lexemes[this->pointer - 1].first);
-            root->SemSetTypeVar(var, type);
+            
+            //root->SemSetTypeVar(var, root->getLexTypeToVar(lexemes[this->pointer - 1].first));
             //Увеличить число параметров функции
             root->increase(cur);
 
@@ -230,18 +233,18 @@ void Analisys::operatorAndDescriptionsAnalysis() {
     //"данные"
     Lexem lex = getCurrentLexeme();
     if ((lex.first == tInt || lex.first == tShort || lex.first == tBool || lex.first == tLong) && lexemes[this->pointer + 2].first != tLs) {
-        int type = root->getLexTypeToVar(lexemes[this->pointer].first);
+      //  int type = root->getLexTypeToVar(lexemes[this->pointer].first);
         this->pointer++;
-        dataAnalysis(itsVar, type);
+        dataAnalysis(itsVar, root->getLexTypeToVar(lexemes[this->pointer].first));
     }
     else if (lex.first == tConst)
     {
 
         lex = getNextLexeme();
         if (lex.first == tInt || lex.first == tBool || lex.first == tShort || lex.first == tLong) {
-            int type = root->getLexTypeToVar(lexemes[this->pointer].first);
+           // int type = root->getLexTypeToVar(lexemes[this->pointer].first);
             this->pointer++;
-            dataAnalysis(itsConst, type);
+            dataAnalysis(itsConst, root->getLexTypeToVar(lexemes[this->pointer].first));
         }
         else showError("Error! expected: type", lex);
     }
@@ -262,14 +265,14 @@ int Analisys::listParamFunc()
     if (lexemes[pointer].first != tPs)
     {
         count = 1;
-        int type = expressionAnalysis();
+        int type = expressionAnalysis().type;
        root->SemParamFunc(type);////////////////////////////////////////////////////////////////////////
         lex = getCurrentLexeme();
 
         while (lex.first == tZpt)
         {
             pointer++;
-            type = expressionAnalysis();
+            type = expressionAnalysis().type;
             root->SemParamFunc(type);//////////////////////////////////////////////////////////////////////
             count++;
             lex = getCurrentLexeme();
@@ -356,7 +359,7 @@ void Analisys::cycleAnalysis() {
     if (lex.first != tLs) showError("Error, expected: '('", lex);
     lex = getNextLexeme();
 
-    int type = expressionAnalysis();
+    TypeVar type = root->FromConstToType(expressionAnalysis().type);
     lex = getCurrentLexeme();
 
     // Except ')'
@@ -411,108 +414,321 @@ void Analisys::operatorCase() {
     root->epilogue();
 }
 
-int Analisys::expressionAnalysis() {////////////////////////////////////////////////////////////////////////////
-    int type = logI();
+
+
+
+
+DataTypeAndValue  Analisys::expressionAnalysis() {////////////////////////////////////////////////////////////////////////////
+    DataTypeAndValue type = logI();
     Lexem lex = getCurrentLexeme();
 
-    while (
-        lex.first == tOr) {
+    while (lex.first == tOr) {
         this->pointer++;
-        //type = root->semResType(type, logI());
-        type = TBool;
+        DataTypeAndValue typeDop = logI();
+
+        if (type.type == TTBool && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_bool || typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_int || typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTBool && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_bool || typeDop.data.Data_int;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_int || typeDop.data.Data_int;
+        }
+        type.type = TTBool;
         lex = getCurrentLexeme();
     }
     return type;
 }
 
-int Analisys::logI() {////////////////////////////////////////////////////////////////////////////
-    int type = eqFunc1();
+DataTypeAndValue Analisys::logI() {////////////////////////////////////////////////////////////////////////////
+    DataTypeAndValue type = eqFunc1();
     Lexem lex = getCurrentLexeme();
 
     while (lex.first == tAnd) {
         this->pointer++;
-        // type = root->semResType(type, eqFunc1());
-        type = TBool;
+
+        DataTypeAndValue typeDop = eqFunc1();
+
+        if (type.type == TTBool && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_bool && typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_int && typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTBool && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_bool && typeDop.data.Data_int;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_int && typeDop.data.Data_int;
+        }
+        type.type = TTBool;
         lex = getCurrentLexeme();
     }
     return type;
 }
 
-int Analisys::eqFunc1() {////////////////////////////////////////////////////////////////////////////
-    int type = eqFunc2();
+DataTypeAndValue Analisys::eqFunc1() {////////////////////////////////////////////////////////////////////////////
+    DataTypeAndValue type = eqFunc2();
     Lexem lex = getCurrentLexeme();
 
     while (lex.first == tEq || lex.first == tNeq) {
+
         this->pointer++;
-        //  type = root->semResType(type, eqFunc2());
-        type = TBool;
+
+        DataTypeAndValue typeDop = eqFunc2();
+
+        if (type.type == TTBool && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_bool == typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_int == typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTBool && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_bool == typeDop.data.Data_int;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_int == typeDop.data.Data_int;
+        }
+        type.type = TTBool;
+        if (lex.first == tNeq)
+            type.data.Data_bool = !type.data.Data_bool;
         lex = getCurrentLexeme();
     }
     return type;
 }
 
-int Analisys::eqFunc2() {////////////////////////////////////////////////////////////////////////////
-    int type = add();
+DataTypeAndValue Analisys::eqFunc2() {////////////////////////////////////////////////////////////////////////////
+    DataTypeAndValue type = eqFunc3();
     Lexem lex = getCurrentLexeme();
 
-    while (
-        lex.first == tMore || lex.first == tLess ||
-        lex.first == tLe || lex.first == tMe) {
-
+    while (lex.first == tMore || lex.first == tLe) {
         this->pointer++;
-        //type = root->semResType(type, add());
-        type = TBool;
+
+        DataTypeAndValue typeDop = eqFunc3();
+
+        if (type.type == TTBool && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_bool <= typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_int <= typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTBool && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_bool <= typeDop.data.Data_int;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_int <= typeDop.data.Data_int;
+        }
+        type.type = TTBool;
+        if (lex.first == tMore)
+            type.data.Data_bool = !type.data.Data_bool;
+        lex = getCurrentLexeme();
+    }
+    return type;
+}
+
+DataTypeAndValue Analisys::eqFunc3() {////////////////////////////////////////////////////////////////////////////
+    DataTypeAndValue type = add();
+    Lexem lex = getCurrentLexeme();
+
+    while (lex.first == tLess ||
+        lex.first == tMe) {
+        this->pointer++;
+        DataTypeAndValue typeDop = add();
+
+        if (type.type == TTBool && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_bool >= typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTBool)
+        {
+            type.data.Data_bool = type.data.Data_int >= typeDop.data.Data_bool;
+        }
+        else  if (type.type == TTBool && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_bool >= typeDop.data.Data_int;
+        }
+        else  if (type.type == TTInt && typeDop.type == TTInt)
+        {
+            type.data.Data_bool = type.data.Data_int >= typeDop.data.Data_int;
+        }
+        type.type = TTBool;
+        if (lex.first == tLess)
+            type.data.Data_bool = !type.data.Data_bool;
         lex = getCurrentLexeme();
     }
     return type;
 }
 
 
-
-int Analisys::add() {
-    int type = multiplier();
+DataTypeAndValue Analisys::add() {
+    DataTypeAndValue type = multiplier();
     Lexem lex = getCurrentLexeme();
     while (lex.first == tPlus || lex.first == tMinus) {
-        lex = getNextLexeme();
-        type = root->semResType(type, multiplier());
+        this->pointer++;
+        DataTypeAndValue typeDop = multiplier();
+
+        if(lex.first == tPlus) {
+            if (type.type == TTBool && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_bool + typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_int + typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTBool && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_bool +typeDop.data.Data_int;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_int +typeDop.data.Data_int;
+            }
+
+        }
+
+        else  if (lex.first == tMinus) {
+            if (type.type == TTBool && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_bool - typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_int - typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTBool && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_bool - typeDop.data.Data_int;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_int - typeDop.data.Data_int;
+            }
+        }
+
+
+        type.type = TTInt;
         lex = getCurrentLexeme();
     }
     return type;
 }
 
-int Analisys::multiplier() {
-    int type = logNe();
+DataTypeAndValue Analisys::multiplier() {
+    DataTypeAndValue type = logNe();
     Lexem lex = getCurrentLexeme();
     while (lex.first == tMult || lex.first == tDiv) {
-        lex = getNextLexeme();
-        type = root->semResType(type, logNe());
+        this->pointer++;
+        DataTypeAndValue typeDop = logNe();
+
+        if (lex.first == tMult) {
+            if (type.type == TTBool && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_bool * typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_int * typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTBool && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_bool * typeDop.data.Data_int;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_int * typeDop.data.Data_int;
+            }
+
+        }
+
+        else  if (lex.first == tDiv) {
+            if (type.type == TTBool && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_bool / typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTBool)
+            {
+                type.data.Data_int = type.data.Data_int / typeDop.data.Data_bool;
+            }
+            else  if (type.type == TTBool && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_bool / typeDop.data.Data_int;
+            }
+            else  if (type.type == TTInt && typeDop.type == TTInt)
+            {
+                type.data.Data_int = type.data.Data_int / typeDop.data.Data_int;
+            }
+        }
+
+
+        type.type = TTInt;
         lex = getCurrentLexeme();
     }
     return type;
 }
 
 
-int Analisys::logNe() {
-    int type = elementaryExpressionAnalysis();
+DataTypeAndValue Analisys::logNe() {
+    DataTypeAndValue type = { 0, TTypeDef };
     Lexem lex = getCurrentLexeme();
     if (lex.first == tNot) {
-        type = TBool;
-        lex = getNextLexeme();
+
+        
+        this->pointer++;
+        type = elementaryExpressionAnalysis();
+        
+        if (type.type == TTBool)
+            type.data.Data_bool = !type.data.Data_bool;
+        else
+            type.data.Data_bool = !type.data.Data_int;
+
+
+            type.type = TTBool;
     }
+    else
+   type = elementaryExpressionAnalysis();
+    
     return type;
 }
 
 
-int Analisys::elementaryExpressionAnalysis() {
+DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
 
-    int type = TypeDef;
+    DataTypeAndValue type = {0, TTypeDef };
+  
 
     Lexem lex = getCurrentLexeme();
     //константа
     if (lex.first == constInt || lex.first == constHex || lex.first == tTrue || lex.first == tFalse) {
 
-        //SEMANTIC>>>>>>>>>>>>>>>>>>>
-        type = root->FromConstToType(lex.first);
+        
+        
+        type.type = root->FromConstToType(lex.first);
+        if(type.type==TTBool)
+        type.data.Data_bool = (lex.first == tTrue)? true:false;
+        else
+            if (type.type == TTInt)
+                type.data.Data_int = stoi(lex.second);
+
         this->pointer++;
 
     }
@@ -526,16 +742,19 @@ int Analisys::elementaryExpressionAnalysis() {
         lex = getNextLexeme();
         //вызов функции
         if (lex.first == tLs) {
-            type = root->SemGetTypeF(lexemes[pointer - 1]);
+            //typeObject = root->SemGetTypeF(lexemes[pointer - 1]);
             lex = getNextLexeme();
-
             listParamFunc();
-
-
-
             lex = getNextLexeme();
         }//
-        else  type = root->SemGetTypeV(lexemes[pointer - 1]);
+        else
+        {
+
+          //  typeObject = root->SemGetTypeV(lexemes[pointer - 1]);
+
+            type = root->GetValueIden(lexemes[pointer - 1]);
+
+        }
     }
     //(выражение)
     else if (lex.first == tLs) {
@@ -554,7 +773,7 @@ int Analisys::elementaryExpressionAnalysis() {
 
 
 //Схема "Список"
-void Analisys::dataAnalysis(TypeObject obj, int type) {
+void Analisys::dataAnalysis(TypeObject obj, TypeVar type) {
     Lexem lex = getCurrentLexeme();
     variableAnalysis(obj, type);
     lex = getCurrentLexeme();
@@ -567,7 +786,7 @@ void Analisys::dataAnalysis(TypeObject obj, int type) {
 }
 
 //часть схемы "список" - идентификатора или идентификатор с присваиванием
-void Analisys::variableAnalysis(TypeObject obj, int type) {
+void Analisys::variableAnalysis(TypeObject obj, TypeVar type) {
     Lexem lex = getCurrentLexeme();
 
     //наличие идентификатора
@@ -579,17 +798,27 @@ void Analisys::variableAnalysis(TypeObject obj, int type) {
 
     //добавляем переменную в дерево
     SemTree* cur = root->prologue(lex, obj, Data_Value{0}, lexemes[this->pointer - 1]);
-    root->SemSetTypeVar(cur, type);
+    //root->SemSetTypeVar(cur, type);
 
     lex = getNextLexeme();
 
     //если есть присваивание
+
     while (lex.first == tSave) {
 
+        Lexem lex1 = lexemes[this->pointer - 1];
         this->pointer++;
-        root->isAssignable(expressionAnalysis(), lexemes[this->pointer - 2]);
+        /*root->isAssignable(root->FromConstToType(expressionAnalysis().type), lexemes[this->pointer - 2]);
         //expressionAnalysis();
         lex = getCurrentLexeme();
+        */
+
+        DataTypeAndValue typeDop = expressionAnalysis();
+      //  root->isAssignable(typeDop.type, lexemes[this->pointer - 3]);
+        root->SetValueIden(lex1, typeDop);
+
+        lex = getCurrentLexeme();
+
 
     }
 }
@@ -604,10 +833,13 @@ void Analisys::evalAnalysis() {
     // Except '='
     if (lex.first != tSave) showError("Error, expected: '='", lex);
 
+    Lexem lex1 = this->lexemes[pointer - 1];
     this->pointer++;
 
     //SEMANTIC>>>>>>>>>>>>>>>>>>>
-    root->isAssignable(expressionAnalysis(), this->lexemes[pointer - 2]);
+    DataTypeAndValue type1 = expressionAnalysis();
+   // root->isAssignable(type1.type, this->lexemes[pointer - 3]);
+    root->SetValueIden(lex1, type1);
     //expressionAnalysis();
 }
 

@@ -1,7 +1,20 @@
+
+bool j = false || !false;
+int k = 1;
+int yu = (6 + 8 + k)*2 - true;
+bool main ()  {
+j = (false || 123) && (6==68);
+int y=7;
+j= y || 8;
+return true;}
+/*
 bool main ()    {      // main 
    bool yu =  true;
+   yu = false;
+t=345;
+int y = 12;
 	return yu;
-    }
+    }*/
 
 /*
        func with case
