@@ -415,7 +415,19 @@ void Analisys::operatorCase() {
 }
 
 
-
+DataTypeAndValue  Analisys::perevod(TypeVar t, DataTypeAndValue perem)
+{
+    if (t == TTInt && perem.type != TTInt)
+    {
+        perem.data.Data_int = perem.data.Data_bool;
+    }
+    else 
+        if (t == TTBool && perem.type != TTBool)
+        {
+            perem.data.Data_bool = perem.data.Data_int;
+        }
+    return perem;
+}
 
 
 DataTypeAndValue  Analisys::expressionAnalysis() {////////////////////////////////////////////////////////////////////////////
@@ -425,20 +437,15 @@ DataTypeAndValue  Analisys::expressionAnalysis() {//////////////////////////////
     while (lex.first == tOr) {
         this->pointer++;
         DataTypeAndValue typeDop = logI();
+        TypeVar t = root->semResType(type.type, typeDop.type);
+       type =  perevod(t, type);
+       typeDop = perevod(t, typeDop);
 
-        if (type.type == TTBool && typeDop.type == TTBool)
+        if (t == TTBool )
         {
             type.data.Data_bool = type.data.Data_bool || typeDop.data.Data_bool;
         }
-        else  if (type.type == TTInt && typeDop.type == TTBool)
-        {
-            type.data.Data_bool = type.data.Data_int || typeDop.data.Data_bool;
-        }
-        else  if (type.type == TTBool && typeDop.type == TTInt)
-        {
-            type.data.Data_bool = type.data.Data_bool || typeDop.data.Data_int;
-        }
-        else  if (type.type == TTInt && typeDop.type == TTInt)
+        else  if (t == TTInt)
         {
             type.data.Data_bool = type.data.Data_int || typeDop.data.Data_int;
         }
@@ -456,20 +463,16 @@ DataTypeAndValue Analisys::logI() {/////////////////////////////////////////////
         this->pointer++;
 
         DataTypeAndValue typeDop = eqFunc1();
+        TypeVar t = root->semResType(type.type, typeDop.type);
+        type = perevod(t, type);
+        typeDop = perevod(t, typeDop);
 
-        if (type.type == TTBool && typeDop.type == TTBool)
+        if (t == TTBool)
         {
             type.data.Data_bool = type.data.Data_bool && typeDop.data.Data_bool;
+        
         }
-        else  if (type.type == TTInt && typeDop.type == TTBool)
-        {
-            type.data.Data_bool = type.data.Data_int && typeDop.data.Data_bool;
-        }
-        else  if (type.type == TTBool && typeDop.type == TTInt)
-        {
-            type.data.Data_bool = type.data.Data_bool && typeDop.data.Data_int;
-        }
-        else  if (type.type == TTInt && typeDop.type == TTInt)
+        else  if (t == TTInt)
         {
             type.data.Data_bool = type.data.Data_int && typeDop.data.Data_int;
         }
@@ -488,20 +491,16 @@ DataTypeAndValue Analisys::eqFunc1() {//////////////////////////////////////////
         this->pointer++;
 
         DataTypeAndValue typeDop = eqFunc2();
+        TypeVar t = root->semResType(type.type, typeDop.type);
+        type = perevod(t, type);
+        typeDop = perevod(t, typeDop);
 
-        if (type.type == TTBool && typeDop.type == TTBool)
+        if (t == TTBool)
         {
             type.data.Data_bool = type.data.Data_bool == typeDop.data.Data_bool;
         }
-        else  if (type.type == TTInt && typeDop.type == TTBool)
-        {
-            type.data.Data_bool = type.data.Data_int == typeDop.data.Data_bool;
-        }
-        else  if (type.type == TTBool && typeDop.type == TTInt)
-        {
-            type.data.Data_bool = type.data.Data_bool == typeDop.data.Data_int;
-        }
-        else  if (type.type == TTInt && typeDop.type == TTInt)
+ 
+        else  if (t == TTInt)
         {
             type.data.Data_bool = type.data.Data_int == typeDop.data.Data_int;
         }
@@ -521,20 +520,16 @@ DataTypeAndValue Analisys::eqFunc2() {//////////////////////////////////////////
         this->pointer++;
 
         DataTypeAndValue typeDop = eqFunc3();
+        TypeVar t = root->semResType(type.type, typeDop.type);
+        type = perevod(t, type);
+        typeDop = perevod(t, typeDop);
 
-        if (type.type == TTBool && typeDop.type == TTBool)
+        if (t == TTBool)
         {
             type.data.Data_bool = type.data.Data_bool <= typeDop.data.Data_bool;
         }
-        else  if (type.type == TTInt && typeDop.type == TTBool)
-        {
-            type.data.Data_bool = type.data.Data_int <= typeDop.data.Data_bool;
-        }
-        else  if (type.type == TTBool && typeDop.type == TTInt)
-        {
-            type.data.Data_bool = type.data.Data_bool <= typeDop.data.Data_int;
-        }
-        else  if (type.type == TTInt && typeDop.type == TTInt)
+
+        else  if (t == TTInt)
         {
             type.data.Data_bool = type.data.Data_int <= typeDop.data.Data_int;
         }
@@ -554,20 +549,15 @@ DataTypeAndValue Analisys::eqFunc3() {//////////////////////////////////////////
         lex.first == tMe) {
         this->pointer++;
         DataTypeAndValue typeDop = add();
-
-        if (type.type == TTBool && typeDop.type == TTBool)
+        TypeVar t = root->semResType(type.type, typeDop.type);
+        type = perevod(t, type);
+        typeDop = perevod(t, typeDop);
+        if (t == TTBool)
         {
             type.data.Data_bool = type.data.Data_bool >= typeDop.data.Data_bool;
         }
-        else  if (type.type == TTInt && typeDop.type == TTBool)
-        {
-            type.data.Data_bool = type.data.Data_int >= typeDop.data.Data_bool;
-        }
-        else  if (type.type == TTBool && typeDop.type == TTInt)
-        {
-            type.data.Data_bool = type.data.Data_bool >= typeDop.data.Data_int;
-        }
-        else  if (type.type == TTInt && typeDop.type == TTInt)
+
+        else  if (t == TTInt)
         {
             type.data.Data_bool = type.data.Data_int >= typeDop.data.Data_int;
         }
@@ -586,21 +576,16 @@ DataTypeAndValue Analisys::add() {
     while (lex.first == tPlus || lex.first == tMinus) {
         this->pointer++;
         DataTypeAndValue typeDop = multiplier();
-
+        TypeVar t = root->semResType(type.type, typeDop.type);
+        type = perevod(t, type);
+        typeDop = perevod(t, typeDop);
         if(lex.first == tPlus) {
-            if (type.type == TTBool && typeDop.type == TTBool)
+            if (t == TTBool)
             {
                 type.data.Data_int = type.data.Data_bool + typeDop.data.Data_bool;
             }
-            else  if (type.type == TTInt && typeDop.type == TTBool)
-            {
-                type.data.Data_int = type.data.Data_int + typeDop.data.Data_bool;
-            }
-            else  if (type.type == TTBool && typeDop.type == TTInt)
-            {
-                type.data.Data_int = type.data.Data_bool +typeDop.data.Data_int;
-            }
-            else  if (type.type == TTInt && typeDop.type == TTInt)
+
+            else  if (t == TTInt)
             {
                 type.data.Data_int = type.data.Data_int +typeDop.data.Data_int;
             }
@@ -608,19 +593,12 @@ DataTypeAndValue Analisys::add() {
         }
 
         else  if (lex.first == tMinus) {
-            if (type.type == TTBool && typeDop.type == TTBool)
+            if (t == TTBool)
             {
                 type.data.Data_int = type.data.Data_bool - typeDop.data.Data_bool;
             }
-            else  if (type.type == TTInt && typeDop.type == TTBool)
-            {
-                type.data.Data_int = type.data.Data_int - typeDop.data.Data_bool;
-            }
-            else  if (type.type == TTBool && typeDop.type == TTInt)
-            {
-                type.data.Data_int = type.data.Data_bool - typeDop.data.Data_int;
-            }
-            else  if (type.type == TTInt && typeDop.type == TTInt)
+
+            else  if (t == TTInt)
             {
                 type.data.Data_int = type.data.Data_int - typeDop.data.Data_int;
             }
@@ -639,21 +617,16 @@ DataTypeAndValue Analisys::multiplier() {
     while (lex.first == tMult || lex.first == tDiv) {
         this->pointer++;
         DataTypeAndValue typeDop = logNe();
-
+        TypeVar t = root->semResType(type.type, typeDop.type);
+        type = perevod(t, type);
+        typeDop = perevod(t, typeDop);
         if (lex.first == tMult) {
-            if (type.type == TTBool && typeDop.type == TTBool)
+            if (t == TTBool)
             {
                 type.data.Data_int = type.data.Data_bool * typeDop.data.Data_bool;
+
             }
-            else  if (type.type == TTInt && typeDop.type == TTBool)
-            {
-                type.data.Data_int = type.data.Data_int * typeDop.data.Data_bool;
-            }
-            else  if (type.type == TTBool && typeDop.type == TTInt)
-            {
-                type.data.Data_int = type.data.Data_bool * typeDop.data.Data_int;
-            }
-            else  if (type.type == TTInt && typeDop.type == TTInt)
+            else  if (t == TTInt)
             {
                 type.data.Data_int = type.data.Data_int * typeDop.data.Data_int;
             }
@@ -661,19 +634,12 @@ DataTypeAndValue Analisys::multiplier() {
         }
 
         else  if (lex.first == tDiv) {
-            if (type.type == TTBool && typeDop.type == TTBool)
+            if (t == TTBool)
             {
                 type.data.Data_int = type.data.Data_bool / typeDop.data.Data_bool;
             }
-            else  if (type.type == TTInt && typeDop.type == TTBool)
-            {
-                type.data.Data_int = type.data.Data_int / typeDop.data.Data_bool;
-            }
-            else  if (type.type == TTBool && typeDop.type == TTInt)
-            {
-                type.data.Data_int = type.data.Data_bool / typeDop.data.Data_int;
-            }
-            else  if (type.type == TTInt && typeDop.type == TTInt)
+
+            else  if (t == TTInt)
             {
                 type.data.Data_int = type.data.Data_int / typeDop.data.Data_int;
             }
@@ -695,7 +661,7 @@ DataTypeAndValue Analisys::logNe() {
         
         this->pointer++;
         type = elementaryExpressionAnalysis();
-        
+
         if (type.type == TTBool)
             type.data.Data_bool = !type.data.Data_bool;
         else

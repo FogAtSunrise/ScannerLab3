@@ -1,20 +1,45 @@
 
-bool j = false || !false;
-int k = 1;
-int yu = (6 + 8 + k)*2 - true;
+
+int a = 100;
+bool b = true;
+
+int y = a<b;
+bool yy = a<b;
+int yyy = a>b;
+bool yyyy = a>b;
+
+bool n = !0; 			//true
+bool j = false || !false; 	//true
+int k = 2 * (123 + 177);	//600		
+int yu = (6 + 8 + k)*2 - true;	//1227
+
 bool main ()  {
 j = (false || 123) && (6==68);
-int y=7;
+y=7;
 j= y || 8;
 return true;}
+
 /*
-bool main ()    {      // main 
+
+const int g =125;
+const bool d = true;
+int l = 7;
+
+bool main ()    { 
+l = 12;
+l = true;
+l = false;
+l = 123;
    bool yu =  true;
    yu = false;
-t=345;
-int y = 12;
+   int y = 12;
 	return yu;
-    }*/
+    }
+
+
+
+
+*/
 
 /*
        func with case

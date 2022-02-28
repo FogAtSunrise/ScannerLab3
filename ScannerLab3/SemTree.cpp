@@ -254,7 +254,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 		b.typeObject = EMPTY; // пустая вершина
 		Cur->SetRight(&b); // сделали пустую вершину
 		Cur = Cur->Right;
-		cout << "\nСОБЫТИЕ: Добавлен идентификатор функции: " << a.second<<" Тип: "<< a1.second <<"----------------"<< endl << endl;
+		cout << "\nСОБЫТИЕ: Добавлен идентификатор функции: " << a.second<<" Тип: "<< a1.second <<"----------------"<< endl;
 		return newBlock.top();
 		
 	}
@@ -265,7 +265,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 		b.typeVar = getLexTypeToVar(a1.first); 
 		Cur->SetLeft(&b); // сделали вершину - переменной или константы
 		Cur = Cur->Left;
-		cout << "\nСОБЫТИЕ: Добавлен идентификатор: " << a.second << " Тип: " << a1.second << endl << endl;
+		cout << "\nСОБЫТИЕ: Добавлен идентификатор: " << a.second << " Тип: " << a1.second  << endl;
 		return Cur;
 	}
 }

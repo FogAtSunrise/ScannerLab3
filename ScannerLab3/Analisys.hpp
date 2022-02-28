@@ -76,6 +76,8 @@ private:
     DataTypeAndValue eqFunc2();
     DataTypeAndValue eqFunc3();
 
+    DataTypeAndValue  perevod(TypeVar t, DataTypeAndValue perem);
+
     DataTypeAndValue add();
 
     DataTypeAndValue multiplier();
