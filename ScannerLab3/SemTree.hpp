@@ -57,6 +57,9 @@ protected:
 public:
 	static SemTree* Cur;
 static stack<SemTree*> newBlock;
+
+	bool flagInterpret = true; 
+
 	SemTree(SemTree* l, SemTree* r, SemTree* u, Node* Data);
 	SemTree();
 	~SemTree();
