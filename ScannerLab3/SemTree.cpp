@@ -118,9 +118,9 @@ void SemTree::isAssignable(TypeVar typeVar, Lexem lex)
 }
 
 //проверка для switch
-void SemTree::semConsInSwich(TypeVar typeVar, Lexem lex)
+void SemTree::semConsInSwich(TypeVar typeVar, TypeVar typeVar2, Lexem lex)
 {
-		if (FromConstToType(lex.first) > typeVar)
+		if (typeVar2 > typeVar)
 			PrintError("Невозможно получить из выражения указанное значение\t ", lex);
 }
 
@@ -189,7 +189,7 @@ SemTree* SemTree::prologue(Lexem a, TypeObject t, Data_Value mean, Lexem a1)
 		b.typeObject = EMPTY; // пустая вершина
 		Cur->SetRight(&b); // сделали пустую вершину
 		Cur = Cur->Right;
-		cout << "\nВыделена память под блок " << a.second <<endl;
+		cout << "\nОткрыт блок " << a.second <<endl;
 		dop= newBlock.top();
 	}
 	else 
@@ -265,7 +265,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 		b.typeVar = getLexTypeToVar(a1.first); 
 		Cur->SetLeft(&b); // сделали вершину - переменной или константы
 		Cur = Cur->Left;
-		cout << "\nСОБЫТИЕ: Добавлен идентификатор: " << a.second << " Тип: " << a1.second  << endl;
+		cout << "\n<><><><><><><> СОБЫТИЕ: Добавлен идентификатор: " << a.second << " Тип: " << a1.second  << endl ;
 		return Cur;
 	}
 }

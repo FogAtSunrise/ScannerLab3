@@ -1,5 +1,114 @@
+bool main ()    {      // main 
+
+	int switch1;
+
+//все сработают
+ 	switch (6>7)
+        	{
+        	case 0:
+        	switch1 = 1;
+
+	        case 4:
+        	switch1 = 2;
+
+		default: 
+		switch1 = 3;
+        	} 
 
 
+	int switch2;
+//сработают последние 2
+ 	switch (6>7)
+        	{
+        	case 4:
+        	switch2 = 1;
+
+	        case 0:
+        	switch2 = 2;
+
+		default: 
+		switch2 = 3;
+        	} 
+		 
+	int switch3;
+//сработает последний
+ 	switch (6>7)
+        	{
+        	case 4:
+        	switch3 = 1;
+
+	        case true:
+        	switch3 = 2;
+
+		default: 
+		switch3 = 3;
+        	} 
+
+int switch4;
+//сработает только первый
+ 	switch (6>7)
+        	{
+        	case false:
+        	switch4 = 1;
+		break;
+	        case true:
+        	switch4 = 2;
+
+		default: 
+		switch4 = 3;
+        	} 
+
+int switch5;
+//сработают первые два
+ 	switch (6>7)
+        	{
+        	case false:
+        	switch5 = 1;
+		
+	        case true:
+        	switch5 = 2;
+		break;
+
+		default: 
+		switch5 = 3;
+        	}
+
+
+int switch6;
+
+//сработает второй case  и в нем во вложенном свитче сработают два последних
+ 	switch ((2+6)*2) //16
+        	{
+        	case false:
+        	switch6 = 1;
+		int switch61;
+		
+	        case 16:
+        	switch6 = 2;
+		int switch61;
+			switch (!false) 
+        			{
+        			case false:
+        			switch61 = 1;
+		
+	     			case !0:
+        			switch61 = 2;
+
+				default: 
+				switch61 = 3;
+        			}
+
+		break;
+
+		default: 
+		switch6 = 3;
+        	}
+
+    
+	return true;
+    }
+
+/*
 int func1(int h) {
 
         const bool qwe = true;
@@ -30,7 +139,7 @@ bool main ()    {      // main
    func1(26);
 	return yu;
     }
-
+*/
 /*
 int a = 100;
 bool b = true;

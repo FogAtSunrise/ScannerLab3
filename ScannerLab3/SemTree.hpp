@@ -58,7 +58,7 @@ public:
 	static SemTree* Cur;
 static stack<SemTree*> newBlock;
 
-	bool flagInterpret = true; 
+	
 
 	SemTree(SemTree* l, SemTree* r, SemTree* u, Node* Data);
 	SemTree();
@@ -86,7 +86,7 @@ static stack<SemTree*> newBlock;
 	DataTypeAndValue GetValueIden(Lexem a);
 	int SemParamFunc(int type);//проверка соответствия типов параметров
 	void increase(SemTree* Addr);//увеличить число параметров функции
-	void semConsInSwich(TypeVar typeVar, Lexem lex);
+	void semConsInSwich(TypeVar typeVar, TypeVar typeVar2, Lexem lex);
 	void SemFinishFunc(SemTree* a);// установить текущий узел дерева
 	SemTree* GetCur(void);// получить значение текущего узла дерева
 	SemTree* SemAdd(Lexem a, TypeObject t, Lexem a1);// занесение идентификатора a в таблицу с типом t

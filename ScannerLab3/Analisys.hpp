@@ -75,7 +75,7 @@ private:
 
     DataTypeAndValue eqFunc2();
     DataTypeAndValue eqFunc3();
-
+    bool flagInterpret = true;  //флаг интерпретации
     DataTypeAndValue  perevod(TypeVar t, DataTypeAndValue perem);
 
     DataTypeAndValue add();
@@ -105,7 +105,7 @@ private:
 
     void cycleAnalysis();
 
-    void operatorCase();
+    bool operatorCase();
 
     DataTypeAndValue expressionAnalysis();
 

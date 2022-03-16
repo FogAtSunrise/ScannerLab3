@@ -353,13 +353,20 @@ void Analisys::operatorAnalysis() {
 
 //схема "switch"
 void Analisys::cycleAnalysis() {
+
+    bool localFlag = flagInterpret; //запоминаю текущее состояние флага интерпритации
+    bool flagBreak = false; //флаг break, false - если break еще не вызывался, true если break уже был
+    flagInterpret = false;
+    DataTypeAndValue meanSwitch;//значение в скобках
+    
     Lexem lex = getCurrentLexeme();
 
     // Except '('
     if (lex.first != tLs) showError("Error, expected: '('", lex);
     lex = getNextLexeme();
 
-    TypeVar type = root->FromConstToType(expressionAnalysis().type);
+    meanSwitch = expressionAnalysis();
+    TypeVar type = root->FromConstToType(meanSwitch.type);
     lex = getCurrentLexeme();
 
     // Except ')'
@@ -371,47 +378,109 @@ void Analisys::cycleAnalysis() {
     lex = getNextLexeme();
 
     while (lex.first != tFps) {
-        if (lex.first == tDef)
+
+        if (lex.first == tDef ){
+            lex = getNextLexeme();
+            if (!flagBreak) //default 
+                flagBreak = operatorCase();
+            
+           
+        }
+        else  if (lex.first == tCase ) //case
         {
             lex = getNextLexeme();
-            operatorCase();
+
+            if (!flagBreak)
+            { 
+                DataTypeAndValue  meanCase = expressionAnalysis();
+
+                if (!flagInterpret)
+                {
+                    
+                    //проверка выражения в кейсе
+
+                   
+                    DataTypeAndValue  meanDop = meanSwitch;
+                    TypeVar needType = root->semResType(meanSwitch.type, meanCase.type);
+
+                    if (meanCase.type != needType)
+                        meanCase = perevod(needType, meanCase);
+
+                    if (meanSwitch.type != needType)
+                        meanDop = perevod(needType, meanDop);
+
+                    if (needType == TTBool)
+                    {
+                        if (meanDop.data.Data_bool == meanCase.data.Data_bool)
+                        {
+                            flagInterpret = true;
+                            flagBreak = operatorCase();
+                        }
+                    }
+
+                    else  if (needType == TTInt)
+                    {
+                        if (meanDop.data.Data_int == meanCase.data.Data_int)
+                        {
+                            flagInterpret = true;
+                            flagBreak = operatorCase();
+                        }
+                    }
+                }
+                  
+                else  flagBreak = operatorCase();
+
+            }
         }
-        else  if (lex.first == tCase)
-        {
-            lex = getNextLexeme();
-
-            if (lex.first != constInt && lex.first != constHex && lex.first != tTrue && lex.first != tFalse) showError("Error, expected: 'expression'", lex);
-
-
-            //SEMANTIC>>>>>>>>>>>>>>>>>>>
-            root->semConsInSwich(type, lex);
-
-            lex = getNextLexeme();
-            operatorCase();
+        else         {
+            while (lex.first != tCase && lex.first != tDef && lex.first != tFps)
+            {
+                lex = getNextLexeme();
+            }
         }
-        else showError("Error, expected: 'Case' or '}'", lex);
-        lex = getNextLexeme();
+      
+        lex = getCurrentLexeme();
+
     }
 
+
+    flagInterpret = localFlag; //восстанавливаю состояние флага интерпретации
 }
 
+
+
 //тело case
-void Analisys::operatorCase() {
+bool Analisys::operatorCase() {
 
     Lexem lex = getCurrentLexeme();
     if (lex.first != tDtoch) showError("Error, expected: ':'", lex);
-    SemTree* var = root->prologue(Lexem{29, "Case", lex.numb}, itsVar, Data_Value{ 1 }, lexemes[this->pointer - 1]);
+   // SemTree* var = root->prologue(Lexem{29, (lexemes[this->pointer - 1].first==tDef)? "default":"Case", lex.numb}, itsVar, Data_Value{ 1 }, lexemes[this->pointer - 1]);
     lex = getNextLexeme();
     //"составной оператор"
-    while (lex.first != tBreak) {
+    while (lex.first != tBreak && lex.first != tCase && lex.first != tDef && lex.first != tFps) {
         operatorAndDescriptionsAnalysis();
         lex = getNextLexeme();
-        if (lex.first == tFps || lex.first == tDef || lex.first == tCase) showError("Error, expected: 'break'", lex);
-    }
+        //if (lex.first == tFps || lex.first == tDef || lex.first == tCase) showError("Error, expected: 'break'", lex);
+    }  
+    
+   // root->epilogue();
 
+    if (lex.first == tBreak)
+    {
     lex = getNextLexeme();
     if (lex.first != tTzpt) showError("Error, expected: ';'", lex);
-    root->epilogue();
+
+    while (lex.first != tCase && lex.first != tDef && lex.first != tFps) 
+    {
+        lex = getNextLexeme();
+    }
+    flagInterpret = false;
+    return true;
+    }
+    
+  
+
+    return false;;
 }
 
 
@@ -420,11 +489,13 @@ DataTypeAndValue  Analisys::perevod(TypeVar t, DataTypeAndValue perem)
     if (t == TTInt && perem.type != TTInt)
     {
         perem.data.Data_int = perem.data.Data_bool;
+        perem.type = TTInt;
     }
     else 
         if (t == TTBool && perem.type != TTBool)
         {
             perem.data.Data_bool = perem.data.Data_int;
+            perem.type = TTBool;
         }
     return perem;
 }
