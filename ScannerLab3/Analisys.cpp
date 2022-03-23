@@ -90,12 +90,40 @@ void Analisys::checkLexeme() {
         //добавляем функцию в дерево
         SemTree* cur = root->prologue(lexemes[this->pointer + 1], itsFunct, Data_Value{ 1 }, lexemes[this->pointer]);
         
-   //    root->getLexTypeToVar(lexemes[this->pointer].first);
+        lex = getNextLexeme();
 
-       // root->SemSetTypeVar(cur, root->getLexTypeToVar(lexemes[this->pointer].first));
+        // Id
+        if (lex.first != tId && lex.first != tMain) showError("Error, expected: Id", lex);
+        bool IsMain = (lex.first == tMain ? true : false);
 
-        this->pointer++;
+        
+
+        lex = getNextLexeme();
+        // expect '('
+        if (lex.first != tLs) showError("Error, expected: '('", lex);
+
+
+        //блок "список параметров"
+        pointer++;
+        oneParam(cur);
+        lex = getCurrentLexeme();
+        while (lex.first == tZpt)
+        {
+            pointer++;
+            oneParam(cur);
+            lex = getCurrentLexeme();
+        }
+
+        // expect ')'
+        if (lex.first != tPs) showError("Error, expected: ')'", lex);
+        lex = getNextLexeme();
+
+        root->flagInterpret = IsMain ? true : false;
+
         functionAnalysis(cur);
+
+        root->flagInterpret = true;
+
         root->SemFinishFunc(cur);
   root->epilogue();
     }
@@ -135,38 +163,13 @@ void Analisys::checkLexeme() {
     }
 }
 
-
 /*
  * схема "функция"
  */
 void Analisys::functionAnalysis(SemTree* cur) {
 
+    TypeVar type = root->GetTypeCur(cur);
     Lexem lex = getCurrentLexeme();
-
-    // Id
-    if (lex.first != tId && lex.first != tMain) showError("Error, expected: Id", lex);
-
-    TypeVar type = root->SemGetTypeF(lex);
-
-    lex = getNextLexeme();
-    // expect '('
-    if (lex.first != tLs) showError("Error, expected: '('", lex);
-
-
-    //блок "список параметров"
-    pointer++;
-    oneParam(cur);
-    lex = getCurrentLexeme();
-    while (lex.first == tZpt)
-    {
-        pointer++;
-        oneParam(cur);
-        lex = getCurrentLexeme();
-    }
-
-    // expect ')'
-    if (lex.first != tPs) showError("Error, expected: ')'", lex);
-    lex = getNextLexeme();
 
     //схема "составной оператор", но подстроенная под тело функции, т.е. следим за return
         // expect '{'
@@ -198,6 +201,8 @@ void Analisys::functionAnalysis(SemTree* cur) {
 
     // expect '}'
     if (lex.first != tFps) showError("Error! '}'", lex);
+
+   
 
 }
 

@@ -31,6 +31,7 @@ union Data_Value { // значение одного элемента данны�
 
 struct Node // вершина семантического дерева
 {
+	int adress=0;
 	Lexem id; // идентификатор переменной
 	int typeObject; // тип объекта
 	TypeVar typeVar; // возвращаемый тип
@@ -58,7 +59,7 @@ public:
 	static SemTree* Cur;
 static stack<SemTree*> newBlock;
 
-	
+bool flagInterpret = true;  //флаг интерпретации
 
 	SemTree(SemTree* l, SemTree* r, SemTree* u, Node* Data);
 	SemTree();
@@ -67,7 +68,7 @@ static stack<SemTree*> newBlock;
 	void SetRight(Node* Data);
 	SemTree* FindUp(SemTree* From, Lexem id);
 	SemTree* OneLevelFind(SemTree* From, Lexem id);
-	
+	TypeVar GetTypeCur(SemTree* Addr);
 	void Print();
 
 	void PrintError(std::string error, Lexem lex);

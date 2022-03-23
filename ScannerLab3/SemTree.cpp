@@ -180,7 +180,7 @@ stack<SemTree*> SemTree::newBlock;
 SemTree* SemTree::prologue(Lexem a, TypeObject t, Data_Value mean, Lexem a1)
 {
 
-	SemTree* dop;
+	SemTree* dop=NULL;
 	if (a.first == tFls) //если получена открытая скобка
 	{
 		newBlock.push(Cur);
@@ -193,16 +193,13 @@ SemTree* SemTree::prologue(Lexem a, TypeObject t, Data_Value mean, Lexem a1)
 		dop= newBlock.top();
 	}
 	else 
+		if(flagInterpret)
 	{
 		SemTree* n = SemAdd( a, t, a1);///////////////////////////////////
-	
 		dop= n;
 		//n.data.
 	}
-//	cout << "-----------------START TREE-----------------------" << endl;
-	//Print();
-	//cout << "-----------------FINISH TREE-----------------------" << endl << endl;
-	
+
 	return dop;
 }
 
@@ -313,6 +310,11 @@ void SemTree::increase(SemTree* Addr)
 }
 
 
+TypeVar SemTree::GetTypeCur(SemTree* Addr)
+{
+	return Addr->n->typeVar;
+}
+
 // проверить равенство числа формальных параметров и фактических
 void SemTree::SemControlCountParam(SemTree* Addr, int num)
 
@@ -324,18 +326,19 @@ void SemTree::SemControlCountParam(SemTree* Addr, int num)
 //присвоить идентификатору новое значение
 void SemTree::SetValueIden(Lexem a, DataTypeAndValue val)
 {
+	if (flagInterpret) {
 	SemTree* addr = SemGetVar(a);
-	if (addr != NULL  )
+	if (addr != NULL)
 	{
 		addr->n->data = val.data;
 		addr->n->init = true;
 	}
-	if(val.type > addr->n->typeVar)
+	if (val.type > addr->n->typeVar)
 		PrintError("ТИПЫ НЕ СООТВЕТСТВУЮТ", a);
 
-	cout << "СОБЫТИЕ: присвоено новое значение переменной " << a.second << " [тип: " << NameType(addr->n->typeVar) << ", значение:"<< valueString(addr) << "]" << endl;
+	cout << "СОБЫТИЕ: присвоено новое значение переменной " << a.second << " [тип: " << NameType(addr->n->typeVar) << ", значение:" << valueString(addr) << "]" << endl;
 
-
+}
 
 	//cout << "-----------------START TREE-----------------------" << endl;
 	//Print();

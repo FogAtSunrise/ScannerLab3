@@ -1,4 +1,22 @@
+int func1(int h, bool k, int rt) {
+
+        const bool qwe = true;
+        
+return 2+7;
+    }
+
 bool main ()    {      // main 
+   bool yu =  true;
+   
+	return yu;
+    }
+
+int func2() {
+const int qwe = 123;
+return 56;
+}
+
+/*bool main ()    {      // main 
 
 	int switch1;
 
@@ -107,7 +125,7 @@ int switch6;
     
 	return true;
     }
-
+*/
 /*
 int func1(int h) {
 
