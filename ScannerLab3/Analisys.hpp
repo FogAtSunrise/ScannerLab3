@@ -72,7 +72,7 @@ private:
     DataTypeAndValue logNe();
     void oneParam(SemTree* cur);
     DataTypeAndValue eqFunc1();
-
+    DataTypeAndValue CallFunction();
     DataTypeAndValue eqFunc2();
     DataTypeAndValue eqFunc3();
     bool flagInterpret = true;  //флаг интерпретации
@@ -95,7 +95,7 @@ private:
     void operatorAnalysis();
 
     void dataAnalysis(TypeObject obj, TypeVar type);
-    int listParamFunc();
+    int listParamFunc(SemTree* func);
 
     void namedConstantAnalise();
 

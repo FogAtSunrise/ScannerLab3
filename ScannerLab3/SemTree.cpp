@@ -3,6 +3,8 @@
 #define max(a,b) a<b? b : a
 
 SemTree* SemTree::Cur = NULL; //текущий узел
+SemTree* SemTree::CurFunc = NULL; //текущий узел
+
 
 SemTree::SemTree(SemTree* l, SemTree* r, SemTree* u, Node* d)
 // конструктор узла с заданными связями и данными
@@ -38,6 +40,27 @@ void SemTree::SetRight(Node* Data)
 	Right = a; // связали с новой вершиной
 }
 
+SemTree* SemTree::CopyTree(SemTree* node)
+{
+	if (node == NULL)
+		return NULL;
+	SemTree* newnode = new SemTree(NULL, NULL, node, node->n);
+	newnode->Left = CopyTree(node->Left);
+	if(newnode->Left!=NULL)
+	newnode->Left->Up = newnode;
+	return newnode;
+}
+
+SemTree* SemTree::CreateCopy(SemTree* From)
+{
+	SemTree* a = new SemTree(NULL, NULL, From, From->n);
+	a->Left = From->Left;
+	a->Right = CopyTree(From->Right);
+	if(a->Right!=NULL)
+	a->Right->Up = a;
+	From->Left = a;
+	return a;
+}
 
 SemTree* SemTree::FindUp(SemTree* From, Lexem id)
 // поиск данных от заданной вершины до корня вверх 
@@ -48,7 +71,10 @@ SemTree* SemTree::FindUp(SemTree* From, Lexem id)
 	return i;
 }
 
-
+Lexem SemTree::getId(SemTree* tree)
+{
+	return tree->n->id;
+}
 
 void SemTree::Print()
 // отладочная программа печати дерева
@@ -210,12 +236,12 @@ SemTree* SemTree::epilogue() {
 		Cur = newBlock.top();
 		newBlock.pop();
 		//закомментированный код позволяет оставлять параметры 
-		/*SemTree* dop = Cur->Right;
+		SemTree* dop = Cur->Right;
 		for (int i = 0; i < Cur->n->param; i++)
 			dop = dop->Left; 
-		dop->Left= nullptr;*/
+		dop->Left= nullptr;
 		cout << "СОБЫТИЕ: Удален блок-----------------\n" << endl;
-		Cur->Right = nullptr;
+		//Cur->Right = nullptr;
 	}
 	//cout << "-----------------START TREE-----------------------" << endl;
 	//Print();
@@ -343,17 +369,55 @@ void SemTree::SetValueIden(Lexem a, DataTypeAndValue val)
 	//cout << "-----------------START TREE-----------------------" << endl;
 	//Print();
 	//cout << "-----------------FINISH TREE-----------------------" << endl << endl;
+}	
+
+//присвоить функции новое значение
+
+void SemTree::SetValueFunc(Lexem a, DataTypeAndValue val)
+{
+	if (flagInterpret) {
+		SemTree* addr = SemGetFuncId(a);
+		if (addr != NULL)
+		{
+			addr->n->data = val.data;
+			addr->n->init = true;
+		}
+		if (val.type > addr->n->typeVar)
+			PrintError("ТИПЫ НЕ СООТВЕТСТВУЮТ", a);
+
+		cout << "СОБЫТИЕ: функция " << a.second << " вернула значение [тип: " << NameType(addr->n->typeVar) << ", значение:" << valueString(addr) << "]" << endl;
+
+	}
 }
+
+// найти в таблице переменную с именем a
+// и вернуть ссылку 
+SemTree* SemTree::SemGetFuncId(Lexem a)
+
+{
+	SemTree* addr = FindUp(Cur, a);
+	if (addr == NULL)
+		PrintError("Несуществующая функция", a);
+	else
+		if (addr->n->typeObject == itsVar)
+			PrintError("Несуществующая функция", a);
+
+	return addr;
+}
+
 //получить значение указанного идентификатора
 DataTypeAndValue SemTree::GetValueIden(Lexem a)
 {
-	SemTree* addr = SemGetVar(a);
-	if (addr == NULL)
-		PrintError("Несуществующая переменная", a);
-	else
-		if (addr->n->init==true)
-			return DataTypeAndValue{ addr->n->data, addr->n->typeVar };
-		else PrintError("Не инициализированная переменная", a);
+	if (flagInterpret) {
+		SemTree* addr = SemGetVar(a);
+		if (addr == NULL)
+			PrintError("Несуществующая переменная", a);
+		else
+			if (addr->n->init == true)
+				return DataTypeAndValue{ addr->n->data, addr->n->typeVar };
+			else PrintError("Не инициализированная переменная", a);
+	}
+	else return DataTypeAndValue{ 0, TTypeDef};
 
 }
 
@@ -411,21 +475,24 @@ SemTree* SemTree::SemGetFunc(Lexem a)
 
 
 // Проверка параметров функции
-int SemTree::SemParamFunc(int type)
+int SemTree::SemParamFunc(DataTypeAndValue val)
 
 {
-
-/*	if (Cur->Left == NULL)
+	
+	if (CurFunc->Left == NULL)
 	{
 		std::cout << "Ошибка параметров функции(меньше, чем введено)" << std::endl;
 		exit(0);
 }
 	else
 	{
-		Cur = Cur->Left;
-		if (type <= Cur->n->typeVar)
-			//semResType(int typeA, int typeB)
-			return type;
+		CurFunc = CurFunc->Left;
+		if (val.type <= CurFunc->n->typeVar)
+		{
+			CurFunc->n->data = val.data;
+			CurFunc->n->init = true;
+			return val.type;
+		}
 		else
 		{
 			printf("SemError: ");
@@ -434,7 +501,7 @@ int SemTree::SemParamFunc(int type)
 		}
 		
 	}
-*/
+
 	return 1;
 }
 //перевести тип в рабочий вид

@@ -36,6 +36,6 @@ int main(int argc, char* argv[]) {
     }
   //  std::cout << "FINISH" << std::endl;
   
- //   st->Print();
+    st->Print();
     return 0;
 }

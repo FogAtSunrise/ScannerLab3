@@ -1,20 +1,38 @@
 int func1(int h, bool k, int rt) {
 
         const bool qwe = true;
+	int t1 = 67;
+	return t1+2;
+	int t = 34;
         
-return 2+7;
-    }
-
-bool main ()    {      // main 
-   bool yu =  true;
-   
-	return yu;
+	return 2+7;
     }
 
 int func2() {
 const int qwe = 123;
 return 56;
 }
+
+bool main ()    {      // main 
+   bool yu =  true;
+   int switch4;
+	func1(4, true, 11);
+   switch (6>7)
+        	{
+        	case false:
+        	switch4 = 1;
+		break;
+	        case true:
+        	switch4 = 2;
+		return !yu;
+
+		default: 
+		switch4 = 3;
+        	} 
+	return yu;
+    }
+
+
 
 /*bool main ()    {      // main 
 

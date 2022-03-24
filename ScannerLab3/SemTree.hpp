@@ -53,13 +53,19 @@ class SemTree
 {
 protected:
 	Node* n; // данные таблицы
-	SemTree* Up, * Left, * Right;
+	
 
 public:
+	SemTree* Up, * Left, * Right;
 	static SemTree* Cur;
+	static SemTree* CurFunc;
+
 static stack<SemTree*> newBlock;
+SemTree* CopyTree(SemTree* node);
+SemTree* CreateCopy(SemTree* From);
 
 bool flagInterpret = true;  //флаг интерпретации
+bool flagReturn = false;  //флаг интерпретации
 
 	SemTree(SemTree* l, SemTree* r, SemTree* u, Node* Data);
 	SemTree();
@@ -70,7 +76,9 @@ bool flagInterpret = true;  //флаг интерпретации
 	SemTree* OneLevelFind(SemTree* From, Lexem id);
 	TypeVar GetTypeCur(SemTree* Addr);
 	void Print();
-
+	Lexem getId(SemTree* tree);
+	void SetValueFunc(Lexem a, DataTypeAndValue val);
+	SemTree* SemGetFuncId(Lexem a);
 	void PrintError(std::string error, Lexem lex);
 	
 	void SetValueIden(Lexem a, DataTypeAndValue val);
@@ -85,7 +93,7 @@ bool flagInterpret = true;  //флаг интерпретации
 	void isAssignable(TypeVar  typeVar, Lexem lex); // проверить, можно ли присвоить
 	Node* getData();
 	DataTypeAndValue GetValueIden(Lexem a);
-	int SemParamFunc(int type);//проверка соответствия типов параметров
+	int SemParamFunc(DataTypeAndValue val);//проверка соответствия типов параметров
 	void increase(SemTree* Addr);//увеличить число параметров функции
 	void semConsInSwich(TypeVar typeVar, TypeVar typeVar2, Lexem lex);
 	void SemFinishFunc(SemTree* a);// установить текущий узел дерева

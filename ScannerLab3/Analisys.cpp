@@ -118,11 +118,15 @@ void Analisys::checkLexeme() {
         if (lex.first != tPs) showError("Error, expected: ')'", lex);
         lex = getNextLexeme();
 
-        root->flagInterpret = IsMain ? true : false;
-
-        functionAnalysis(cur);
-
-        root->flagInterpret = true;
+       root->flagInterpret = IsMain ? true : false;
+        
+        
+       bool FlagReturnMeet = root->flagReturn;
+       root->flagReturn = false;
+       functionAnalysis(cur);
+       root->flagReturn = FlagReturnMeet;
+    
+       root->flagInterpret = true;
 
         root->SemFinishFunc(cur);
   root->epilogue();
@@ -168,7 +172,13 @@ void Analisys::checkLexeme() {
  */
 void Analisys::functionAnalysis(SemTree* cur) {
 
-    TypeVar type = root->GetTypeCur(cur);
+    SemTree* treeFunc = root->CurFunc;
+    root->CurFunc = cur;
+
+   
+   // bool FlagReturnMeet = false;
+
+    
     Lexem lex = getCurrentLexeme();
 
     //схема "составной оператор", но подстроенная под тело функции, т.е. следим за return
@@ -178,31 +188,28 @@ void Analisys::functionAnalysis(SemTree* cur) {
 
 
     // пока не 'return'
-    while (lex.first != tRet) {
+    while (lex.first != tFps && !root->flagReturn) {
 
-        if (lex.first == tFps) showError("Error! Except 'return'", lex);
+        
+        // expect '}'
+        if ((lex.first>4&& lex.first < 9)&&(lexemes[pointer+1].first == tId)&&(lexemes[pointer + 2].first)==tLs) showError("Error! '}'", lex);
         operatorAndDescriptionsAnalysis();
         lex = getNextLexeme();
 
     }
-    Lexem ret = lex;
-    //анализируем выражение после ретурн
-    lex = getNextLexeme();
-    if (type < expressionAnalysis().type)
-    {//cout << type << " " << root->FromConstToType(expressionAnalysis()) << endl;
-        root->PrintError("Тип выражения не соответствует типу возвращаемого функцией ", ret);
-        
-    }
-    //проверяем, что после return есть точка с запятой
-    lex = getCurrentLexeme();
-    // expect ';'
-    if (lex.first != tTzpt) showError("Error! ';'", lex);
-    lex = getNextLexeme();
 
-    // expect '}'
-    if (lex.first != tFps) showError("Error! '}'", lex);
+    if (!root->flagReturn) showError("Error! Except 'return'", lex);
+    else if(lex.first != tFps) //если встретили ретурн, но не в конце, прогоняем функцию до конца
+        // пока не 'return'
+        while (lex.first != tFps ) {
 
-   
+                // expect '}'
+            if ((lex.first > 4 && lex.first < 9) && (lexemes[pointer + 1].first == tId) && (lexemes[pointer + 2].first) == tLs) showError("Error! '}'", lex);
+            lex = getNextLexeme();
+
+        }
+      
+    root->CurFunc = treeFunc;
 
 }
 
@@ -260,25 +267,31 @@ void Analisys::operatorAndDescriptionsAnalysis() {
 }
 
 
-int Analisys::listParamFunc()
+int Analisys::listParamFunc(SemTree* func)
 {
+
+    SemTree* treeFunc = root->CurFunc;
+    
+root->CurFunc = func->Right;
+    SemTree* treeFunc1 = root->Cur;
+    root->Cur = func;
+    
     Lexem lex;
     //список фактических параметров
     int count = 0;
-    SemTree* cur = root->GetCur();
-    SemTree* func = root->SemGetFunc(lexemes[pointer - 2]);
+
     if (lexemes[pointer].first != tPs)
     {
         count = 1;
-        int type = expressionAnalysis().type;
-       root->SemParamFunc(type);////////////////////////////////////////////////////////////////////////
+    
+       root->SemParamFunc(expressionAnalysis());////////////////////////////////////////////////////////////////////////
         lex = getCurrentLexeme();
 
         while (lex.first == tZpt)
         {
             pointer++;
-            type = expressionAnalysis().type;
-            root->SemParamFunc(type);//////////////////////////////////////////////////////////////////////
+           
+            root->SemParamFunc(expressionAnalysis());//////////////////////////////////////////////////////////////////////
             count++;
             lex = getCurrentLexeme();
         }
@@ -286,9 +299,10 @@ int Analisys::listParamFunc()
 
     }
     root->SemControlCountParam(func, count);
-    root->SemFinishFunc(cur);
+    
 
-
+    root->CurFunc = treeFunc;
+    root->Cur = treeFunc1;
     return count;
 }
 //схема "оператор"
@@ -303,15 +317,9 @@ void Analisys::operatorAnalysis() {
 
     //схема "вызов функции"
     else if (lex.first == tId && this->lexemes[pointer + 1].first == tLs) {
+        CallFunction();
 
-
-        this->pointer += 2;
-        lex = getCurrentLexeme();
-
-
-        listParamFunc();
-
-
+      
         lex = getNextLexeme();
 
         //    Except ';'
@@ -347,8 +355,23 @@ void Analisys::operatorAnalysis() {
 
     //return
     else if (lex.first == tRet) {
+
         this->pointer++;
-        expressionAnalysis();
+        DataTypeAndValue res = expressionAnalysis();
+        if (root->GetTypeCur(root->CurFunc) < res.type)
+        {
+            root->PrintError("Тип выражения не соответствует типу возвращаемого функцией ", lex);
+        }
+        else
+        {
+            root->SetValueFunc(root->getId(root->CurFunc), res);
+            //проверяем, что после return есть точка с запятой
+            lex = getCurrentLexeme();
+            // expect ';'
+            if (lex.first != tTzpt) showError("Error! ';'", lex);
+            root->flagReturn = true;
+
+        }
     }
 
     // Except ';'
@@ -752,6 +775,23 @@ DataTypeAndValue Analisys::logNe() {
     return type;
 }
 
+DataTypeAndValue Analisys::CallFunction()
+{ 
+    SemTree* func = root->CreateCopy(root->SemGetFuncId(lexemes[pointer]));
+    this->pointer += 2;
+
+    listParamFunc(func);
+
+    /*
+            bool FlagReturnMeet = root->flagReturn;
+            root->flagReturn = false;
+            functionAnalysis(cur);
+            root->flagReturn = FlagReturnMeet;
+            */
+  //  root->flagInterpret = true;
+    DataTypeAndValue g{};
+    return g;
+}
 
 DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
 
@@ -781,16 +821,16 @@ DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
         //SEMANTIC>>>>>>>>>>>>>>>>>>>
 
 
-        lex = getNextLexeme();
+        
         //вызов функции
-        if (lex.first == tLs) {
+        if (lexemes[pointer + 1].first == tLs) {
+            CallFunction();
             //typeObject = root->SemGetTypeF(lexemes[pointer - 1]);
-            lex = getNextLexeme();
-            listParamFunc();
-            lex = getNextLexeme();
+ 
         }//
         else
         {
+            lex = getNextLexeme();
 
           //  typeObject = root->SemGetTypeV(lexemes[pointer - 1]);
 
