@@ -39,6 +39,7 @@ struct Node // вершина семантического дерева
 	int param = 0; // количество параметров
 	bool init = false;
 
+	
 };
 
 struct DataTypeAndValue
@@ -52,10 +53,11 @@ struct DataTypeAndValue
 class SemTree
 {
 protected:
-	Node* n; // данные таблицы
+	
 	
 
 public:
+	Node* n; // данные таблицы
 	SemTree* Up, * Left, * Right;
 	static SemTree* Cur;
 	static SemTree* CurFunc;
@@ -84,6 +86,7 @@ bool flagReturn = false;  //флаг интерпретации
 	void SetValueIden(Lexem a, DataTypeAndValue val);
 	string NameType(TypeVar type);
 	string valueString(SemTree* Addr);
+	void DelCopy(SemTree* From);
 	SemTree* SemGetFunc(Lexem a);
 	SemTree* prologue(Lexem a, TypeObject t, Data_Value mean, Lexem a1);//выделение памяти
 	SemTree* epilogue();

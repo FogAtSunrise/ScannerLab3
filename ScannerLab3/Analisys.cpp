@@ -118,11 +118,15 @@ void Analisys::checkLexeme() {
         if (lex.first != tPs) showError("Error, expected: ')'", lex);
         lex = getNextLexeme();
 
-       root->flagInterpret = IsMain ? true : false;
         
+       root->flagInterpret = IsMain ? true : false;
+      
+          
+      
         
        bool FlagReturnMeet = root->flagReturn;
        root->flagReturn = false;
+       cur->n->adress = pointer;
        functionAnalysis(cur);
        root->flagReturn = FlagReturnMeet;
     
@@ -320,7 +324,7 @@ void Analisys::operatorAnalysis() {
         CallFunction();
 
       
-        lex = getNextLexeme();
+        lex = getCurrentLexeme();
 
         //    Except ';'
         if (lex.first != tTzpt) showError("Error, expected: ';'", lex);
@@ -364,6 +368,7 @@ void Analisys::operatorAnalysis() {
         }
         else
         {
+           
             root->SetValueFunc(root->getId(root->CurFunc), res);
             //проверяем, что после return есть точка с запятой
             lex = getCurrentLexeme();
@@ -384,7 +389,7 @@ void Analisys::cycleAnalysis() {
 
     bool localFlag = flagInterpret; //запоминаю текущее состояние флага интерпритации
     bool flagBreak = false; //флаг break, false - если break еще не вызывался, true если break уже был
-    flagInterpret = false;
+   
     DataTypeAndValue meanSwitch;//значение в скобках
     
     Lexem lex = getCurrentLexeme();
@@ -400,7 +405,7 @@ void Analisys::cycleAnalysis() {
     // Except ')'
     if (lex.first != tPs) showError("Error, expected: ')'", lex);
     lex = getNextLexeme();
-
+    flagInterpret = false;
     // Except '{'
     if (lex.first != tFls) showError("Error, expected: '{'", lex);
     lex = getNextLexeme();
@@ -777,20 +782,35 @@ DataTypeAndValue Analisys::logNe() {
 
 DataTypeAndValue Analisys::CallFunction()
 { 
-    SemTree* func = root->CreateCopy(root->SemGetFuncId(lexemes[pointer]));
-    this->pointer += 2;
+    Lexem lex = getCurrentLexeme();
+    if (root->flagInterpret)
+    {
+        SemTree* func = root->CreateCopy(root->SemGetFuncId(lexemes[pointer]));
+        this->pointer += 2;
 
-    listParamFunc(func);
+        listParamFunc(func);
 
-    /*
-            bool FlagReturnMeet = root->flagReturn;
-            root->flagReturn = false;
-            functionAnalysis(cur);
-            root->flagReturn = FlagReturnMeet;
-            */
-  //  root->flagInterpret = true;
-    DataTypeAndValue g{};
-    return g;
+        int adr = pointer + 1;
+        pointer = func->n->adress;
+     //   root->Print();
+
+        bool FlagReturnMeet = root->flagReturn;
+        root->flagReturn = false;
+        SemTree* treeFunc1 = root->Cur;
+        root->Cur = func->Right;
+        for(int i= 0; i<func->n->param; i++)
+        root->Cur = root->Cur->Left;
+        functionAnalysis(func);
+        root->Cur = treeFunc1;
+        root->flagReturn = FlagReturnMeet;
+        pointer = adr;
+        DataTypeAndValue result{ func->n->data, func->n->typeVar };
+        root->DelCopy(func);
+        return result;
+    }
+    else while(lex.first != tTzpt)
+        lex = getNextLexeme();
+   
 }
 
 DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
@@ -824,16 +844,16 @@ DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
         
         //вызов функции
         if (lexemes[pointer + 1].first == tLs) {
-            CallFunction();
+           type= CallFunction();
             //typeObject = root->SemGetTypeF(lexemes[pointer - 1]);
- 
+          
         }//
         else
         {
             lex = getNextLexeme();
 
           //  typeObject = root->SemGetTypeV(lexemes[pointer - 1]);
-
+          
             type = root->GetValueIden(lexemes[pointer - 1]);
 
         }
@@ -910,18 +930,21 @@ void Analisys::variableAnalysis(TypeObject obj, TypeVar type) {
 
 void Analisys::evalAnalysis() {
     Lexem lex = getCurrentLexeme();
+    Lexem iden = lex;
+
     lex = getNextLexeme();
 
     // Except '='
     if (lex.first != tSave) showError("Error, expected: '='", lex);
 
-    Lexem lex1 = this->lexemes[pointer - 1];
+   // Lexem lex1 = this->lexemes[pointer - 1];
     this->pointer++;
 
     //SEMANTIC>>>>>>>>>>>>>>>>>>>
     DataTypeAndValue type1 = expressionAnalysis();
    // root->isAssignable(type1.type, this->lexemes[pointer - 3]);
-    root->SetValueIden(lex1, type1);
+   // root->SetValueIden(lex1, type1);
+    root->SetValueIden(iden, type1);
     //expressionAnalysis();
 }
 

@@ -10,13 +10,32 @@ int func1(int h, bool k, int rt) {
 
 int func2() {
 const int qwe = 123;
+//func1(4, true, 11);
+return 56;
+}
+
+int func3(int y) {
+int u=4;
+switch (y)
+{case 1:
+return func3(2);
+break;
+case 2:
+return func3(3);
+break;
+case 3:
+return 23;
+break;
+
+}
 return 56;
 }
 
 bool main ()    {      // main 
    bool yu =  true;
    int switch4;
-	func1(4, true, 11);
+	//func2();
+/*
    switch (6>7)
         	{
         	case false:
@@ -29,6 +48,8 @@ bool main ()    {      // main
 		default: 
 		switch4 = 3;
         	} 
+*/
+func3(1);
 	return yu;
     }
 

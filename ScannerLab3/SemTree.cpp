@@ -53,13 +53,18 @@ SemTree* SemTree::CopyTree(SemTree* node)
 
 SemTree* SemTree::CreateCopy(SemTree* From)
 {
-	SemTree* a = new SemTree(NULL, NULL, From, From->n);
+	SemTree* a = new SemTree(NULL, NULL, From, new Node{ From->n->adress, From->n->id, From->n->typeObject, From->n->typeVar, From->n->data, From->n->param, From->n->init });
 	a->Left = From->Left;
 	a->Right = CopyTree(From->Right);
 	if(a->Right!=NULL)
 	a->Right->Up = a;
 	From->Left = a;
 	return a;
+}
+
+void SemTree::DelCopy(SemTree* From)
+{
+	From->Up->Left = From->Left;
 }
 
 SemTree* SemTree::FindUp(SemTree* From, Lexem id)
@@ -362,6 +367,7 @@ void SemTree::SetValueIden(Lexem a, DataTypeAndValue val)
 	if (val.type > addr->n->typeVar)
 		PrintError("ТИПЫ НЕ СООТВЕТСТВУЮТ", a);
 
+	Cur = addr;
 	cout << "СОБЫТИЕ: присвоено новое значение переменной " << a.second << " [тип: " << NameType(addr->n->typeVar) << ", значение:" << valueString(addr) << "]" << endl;
 
 }
@@ -384,7 +390,7 @@ void SemTree::SetValueFunc(Lexem a, DataTypeAndValue val)
 		}
 		if (val.type > addr->n->typeVar)
 			PrintError("ТИПЫ НЕ СООТВЕТСТВУЮТ", a);
-
+		Cur = addr;
 		cout << "СОБЫТИЕ: функция " << a.second << " вернула значение [тип: " << NameType(addr->n->typeVar) << ", значение:" << valueString(addr) << "]" << endl;
 
 	}
@@ -491,6 +497,7 @@ int SemTree::SemParamFunc(DataTypeAndValue val)
 		{
 			CurFunc->n->data = val.data;
 			CurFunc->n->init = true;
+			Cur = CurFunc;
 			return val.type;
 		}
 		else
