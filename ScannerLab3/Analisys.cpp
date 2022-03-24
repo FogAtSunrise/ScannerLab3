@@ -410,6 +410,7 @@ void Analisys::cycleAnalysis() {
     if (lex.first != tFls) showError("Error, expected: '{'", lex);
     lex = getNextLexeme();
 
+
     while (lex.first != tFps) {
 
         if (lex.first == tDef ){
@@ -474,6 +475,8 @@ void Analisys::cycleAnalysis() {
       
         lex = getCurrentLexeme();
 
+        if(root->flagReturn)
+            while (lex.first != tFps) { lex = getNextLexeme(); }
     }
 
 

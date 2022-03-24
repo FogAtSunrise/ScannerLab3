@@ -1,4 +1,4 @@
-int func1(int h, bool k, int rt) {
+/*int func1(int h, bool k, int rt) {
 
         const bool qwe = true;
 	int t1 = 67;
@@ -10,7 +10,7 @@ int func1(int h, bool k, int rt) {
 
 int func2() {
 const int qwe = 123;
-//func1(4, true, 11);
+func1(4, true, 11);
 return 56;
 }
 
@@ -18,10 +18,12 @@ int func3(int y) {
 int u=4;
 switch (y)
 {case 1:
-return func3(2);
+func3(2);
+return 1;
 break;
 case 2:
-return func3(3);
+func3(3);
+return 2;
 break;
 case 3:
 return 23;
@@ -34,8 +36,8 @@ return 56;
 bool main ()    {      // main 
    bool yu =  true;
    int switch4;
-	//func2();
-/*
+	func2();
+
    switch (6>7)
         	{
         	case false:
@@ -48,14 +50,16 @@ bool main ()    {      // main
 		default: 
 		switch4 = 3;
         	} 
-*/
-func3(1);
+
+int yr = func3(1);
 	return yu;
     }
 
+*/
 
 
-/*bool main ()    {      // main 
+
+bool main ()    {      // main 
 
 	int switch1;
 
@@ -79,7 +83,7 @@ func3(1);
         	{
         	case 4:
         	switch2 = 1;
-
+		fgjdkfgdk;
 	        case 0:
         	switch2 = 2;
 
@@ -164,7 +168,11 @@ int switch6;
     
 	return true;
     }
-*/
+
+
+
+
+
 /*
 int func1(int h) {
 

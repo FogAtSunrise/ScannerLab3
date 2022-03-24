@@ -245,7 +245,7 @@ SemTree* SemTree::epilogue() {
 		for (int i = 0; i < Cur->n->param; i++)
 			dop = dop->Left; 
 		dop->Left= nullptr;
-		cout << "СОБЫТИЕ: Удален блок-----------------\n" << endl;
+		cout << "СОБЫТИЕ: Конец блока-----------------\n" << endl;
 		//Cur->Right = nullptr;
 	}
 	//cout << "-----------------START TREE-----------------------" << endl;
@@ -282,7 +282,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 		b.typeObject = EMPTY; // пустая вершина
 		Cur->SetRight(&b); // сделали пустую вершину
 		Cur = Cur->Right;
-		cout << "\nСОБЫТИЕ: Добавлен идентификатор функции: " << a.second<<" Тип: "<< a1.second <<"----------------"<< endl;
+		cout << "СОБЫТИЕ: Добавлен идентификатор функции: " << a.second<<" Тип: "<< a1.second <<"----------------"<< endl;
 		return newBlock.top();
 		
 	}
@@ -293,7 +293,7 @@ SemTree* SemTree::SemAdd(Lexem a, TypeObject t, Lexem a1)
 		b.typeVar = getLexTypeToVar(a1.first); 
 		Cur->SetLeft(&b); // сделали вершину - переменной или константы
 		Cur = Cur->Left;
-		cout << "\n<><><><><><><> СОБЫТИЕ: Добавлен идентификатор: " << a.second << " Тип: " << a1.second  << endl ;
+		cout << "<><><><><><><> СОБЫТИЕ: Добавлен идентификатор: " << a.second << " Тип: " << a1.second  << endl ;
 		return Cur;
 	}
 }
