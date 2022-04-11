@@ -1,42 +1,33 @@
+
+
 /*int func1(int h, bool k, int rt) {
 
         const bool qwe = true;
-	int t1 = 67;
-	return t1+2;
-	int t = 34;
-        
-	return 2+7;
+	int t1 = 67+11||12;
+	return t1+2*12;
+	
     }
 
-int func2() {
-const int qwe = 123;
-func1(4, true, 11);
-return 56;
-}
+int func2(bool tr, int ty) {
 
-int func3(int y) {
-int u=4;
-switch (y)
-{case 1:
-func3(2);
-return 1;
-break;
-case 2:
-func3(3);
-return 2;
-break;
-case 3:
-return 23;
-break;
-
-}
+   switch (tr&&(false>21))
+        	{
+        	case false:
+        	func2(true, 4+tr);
+		break;
+	        case true:
+        	return 567;
+		default: 
+		return tr+1;
+        	} 
 return 56;
+
 }
 
 bool main ()    {      // main 
    bool yu =  true;
    int switch4;
-	func2();
+	func1(1, (false && (5<3)), 1);
 
    switch (6>7)
         	{
@@ -51,11 +42,11 @@ bool main ()    {      // main
 		switch4 = 3;
         	} 
 
-int yr = func3(1);
+int yr = func2(false, 1);
 	return yu;
     }
 
-*/
+/*
 
 
 
