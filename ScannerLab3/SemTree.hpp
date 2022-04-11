@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "ScannerClass.hpp"
 #include "ListOfConstants.hpp"
+#include "InterCod.hpp"
 #include <string.h>
 #include <iostream>
 #include <string>
@@ -46,7 +47,7 @@ struct DataTypeAndValue
 {
 	Data_Value data;
 	TypeVar type;
-
+	Oper oper;
 
 };
 

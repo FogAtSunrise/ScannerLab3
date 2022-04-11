@@ -834,6 +834,7 @@ DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
             if (type.type == TTInt)
                 type.data.Data_int = stoi(lex.second);
 
+        type.oper = Oper{false, 0, lex};
         this->pointer++;
 
     }
@@ -919,6 +920,8 @@ void Analisys::variableAnalysis(TypeObject obj, TypeVar type) {
         */
 
         DataTypeAndValue typeDop = expressionAnalysis();
+
+        interCode->addTriad(tSave, Oper{ false, 0, lex1 }, typeDop.oper);//*************************************************************************************************8
       //  root->isAssignable(typeDop.type, lexemes[this->pointer - 3]);
         root->SetValueIden(lex1, typeDop);
 
@@ -945,6 +948,8 @@ void Analisys::evalAnalysis() {
 
     //SEMANTIC>>>>>>>>>>>>>>>>>>>
     DataTypeAndValue type1 = expressionAnalysis();
+
+    interCode->addTriad(tSave, Oper{false, 0, iden }, type1.oper);//*************************************************************************************************8
    // root->isAssignable(type1.type, this->lexemes[pointer - 3]);
    // root->SetValueIden(lex1, type1);
     root->SetValueIden(iden, type1);

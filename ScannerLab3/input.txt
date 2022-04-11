@@ -1,4 +1,9 @@
-
+bool main ()    {  
+int rt= 45;
+bool df=true;
+df=false;
+return false;
+}
 
 /*int func1(int h, bool k, int rt) {
 
@@ -42,7 +47,6 @@ bool main ()    {      // main
 		switch4 = 3;
         	} 
 
-int yr = func2(false, 1);
 	return yu;
     }
 

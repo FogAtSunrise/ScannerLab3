@@ -5,12 +5,15 @@
 #include <vector>
 #include "ScannerClass.hpp"
 #include "SemTree.hpp"
+#include "InterCod.hpp"
+
+
 
 class Analisys {
 protected:
     SemTree* root;
 public:
-    
+    InterCod* interCode;
     explicit Analisys(std::string scanner);
     Analisys()
     {
@@ -83,6 +86,8 @@ private:
     DataTypeAndValue multiplier();
 
     void checkLexeme();
+
+    void printInterCode();
 
     void functionAnalysis(SemTree* cur);
 
