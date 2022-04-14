@@ -914,11 +914,7 @@ void Analisys::variableAnalysis(TypeObject obj, TypeVar type) {
 
         Lexem lex1 = lexemes[this->pointer - 1];
         this->pointer++;
-        /*root->isAssignable(root->FromConstToType(expressionAnalysis().type), lexemes[this->pointer - 2]);
-        //expressionAnalysis();
-        lex = getCurrentLexeme();
-        */
-
+      
         DataTypeAndValue typeDop = expressionAnalysis();
 
         interCode->addTriad(tSave, Oper{ false, 0, lex1 }, typeDop.oper);//*************************************************************************************************8
