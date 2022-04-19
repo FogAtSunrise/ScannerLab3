@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <stack>  
+#include "InterCod.hpp"
 using namespace std;
 
 #define EMPTY -1 // признак пустой ссылки
@@ -44,8 +45,7 @@ struct DataTypeAndValue
 {
 	Data_Value data;
 	TypeVar type;
-
-
+	Oper oper;
 };
 
 class SemTree

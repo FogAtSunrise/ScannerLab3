@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
         fileName = "input.txt";
     }
 
+    InterCod* inter = new InterCod();
     /*
      * Создаём объект анализатора и передаём ему имя файла
      */
@@ -21,6 +22,7 @@ int main(int argc, char* argv[]) {
     SemTree* st = new SemTree();
     st->SemFinishFunc(st);
     analyser.setSemTree(st);
+    analyser.interCode = inter;
     /*
      * Запускаем анализатор и выводим соотвествующие результат сообщения
      */
@@ -34,8 +36,9 @@ int main(int argc, char* argv[]) {
         std::cout << error.what();
         std::cout << "*Errors*" << std::endl;
     }
-  //  std::cout << "FINISH" << std::endl;
-  
- //   st->Print();
+    //  std::cout << "FINISH" << std::endl;
+    std::cout << "##########################################################################################\n" << std::endl;
+    //  st->Print();
+    analyser.interCode->printInterCode();
     return 0;
 }

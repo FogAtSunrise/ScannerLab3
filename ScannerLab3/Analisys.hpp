@@ -10,7 +10,8 @@ class Analisys {
 protected:
     SemTree* root;
 public:
-    
+    InterCod* interCode;
+    void printInterCode();
     explicit Analisys(std::string scanner);
     Analisys()
     {

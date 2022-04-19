@@ -10,7 +10,7 @@
 struct Lexem
 {
     int first;
-    std::string second;
+    std::string second = "";
     int numb;
 };
 //typedef std::pair<int, std::string> Lexem;     // Пара: [тип лексемы, лексема]
