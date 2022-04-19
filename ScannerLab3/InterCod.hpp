@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MAT3_InterCod_H
 #define MAT3_InterCod_H
 
@@ -43,6 +42,7 @@ public:
     void printInterCode();
     InterCod();
     std::string getOp(Triad n, int i);
+    int  getK();
     ~InterCod();
 
 
@@ -73,7 +73,8 @@ public:
 { tNop  ,     "nop"},
 { tPush  ,     "push"},
 { tPop  ,     "pop"},
-{ tCall  ,     "call"}
+{ tCall  ,     "call"},
+        {tPreob, "->"}
 
     };
 };

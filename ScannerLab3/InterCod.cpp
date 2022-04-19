@@ -37,3 +37,8 @@ void InterCod::addTriad(int oper, Oper a, Oper b)
 
     tr.push_back(Triad{ k++, oper, a, b });
 }
+
+int  InterCod::getK()
+{
+    return k;
+}
