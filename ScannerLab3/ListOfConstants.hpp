@@ -58,6 +58,18 @@
 #define tNot  45
 #define tSave  46
 
+#define tProc  50
+#define tProl  51
+#define tEpil  52
+#define tRetF  53
+#define tEndp  54
+#define tIf  55
+#define tGoto  56
+#define tNop  57
+#define tPush  58
+#define tPop  59
+#define tCall  60
+
 //конец исходного модуля
 
 #define tEnd  100

@@ -350,7 +350,8 @@ DataTypeAndValue SemTree::GetValueIden(Lexem a)
 	else
 		if (addr->n->init==true)
 			return DataTypeAndValue{ addr->n->data, addr->n->typeVar };
-		else PrintError("Не инициализированная переменная", a);
+		else //PrintError("Не инициализированная переменная", a);
+			return DataTypeAndValue{0, addr->n->typeVar };
 
 }
 

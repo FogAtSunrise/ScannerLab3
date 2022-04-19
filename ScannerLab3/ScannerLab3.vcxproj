@@ -140,12 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Analisys.cpp" />
+    <ClCompile Include="InterCod.cpp" />
     <ClCompile Include="MainClass.cpp" />
     <ClCompile Include="ScannerClass.cpp" />
     <ClCompile Include="SemTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Analisys.hpp" />
+    <ClInclude Include="InterCod.hpp" />
     <ClInclude Include="SemTree.hpp" />
     <ClInclude Include="ListOfConstants.hpp" />
     <ClInclude Include="ScannerClass.hpp" />
