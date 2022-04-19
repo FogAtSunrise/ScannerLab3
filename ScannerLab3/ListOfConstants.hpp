@@ -69,6 +69,7 @@
 #define tPush  58
 #define tPop  59
 #define tCall  60
+#define tPreob  61
 
 //конец исходного модуля
 

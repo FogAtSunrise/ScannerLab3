@@ -1,9 +1,24 @@
-bool main ()    {  
-int rt= 45;
+int func1(int ht)
+{
+int ret = ht+12;
+return ret;
+}
+
+bool main ()    { 
+
+int rt= 12;
 bool df=true;
-df=false;
+df= (false>12)&& (true || !(12-3));
+bool er = !rt;
+rt = (!df+12)*!rt/5;
+
+func1(12);
+
 return false;
 }
+
+
+
 
 /*int func1(int h, bool k, int rt) {
 

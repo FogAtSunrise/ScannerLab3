@@ -526,12 +526,18 @@ DataTypeAndValue  Analisys::perevod(TypeVar t, DataTypeAndValue perem)
     {
         perem.data.Data_int = perem.data.Data_bool;
         perem.type = TTInt;
+        
+        
+        interCode->addTriad(tPreob, perem.oper, Oper{ false, 0, Lexem{1, "int", 1} });//**********************************************************************************************
+        perem.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };
     }
     else 
         if (t == TTBool && perem.type != TTBool)
         {
             perem.data.Data_bool = perem.data.Data_int;
             perem.type = TTBool;
+            interCode->addTriad(tPreob, perem.oper, Oper{ false, 0, Lexem{1, "bool", 1} });//**********************************************************************************************
+            perem.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };
         }
     return perem;
 }
@@ -555,8 +561,15 @@ DataTypeAndValue  Analisys::expressionAnalysis() {//////////////////////////////
         else  if (t == TTInt)
         {
             type.data.Data_bool = type.data.Data_int || typeDop.data.Data_int;
+
+
+           
         }
         type.type = TTBool;
+        interCode->addTriad(tOr, type.oper, typeDop.oper);//*****************************************************************************************************    
+        type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+
+
         lex = getCurrentLexeme();
     }
     return type;
@@ -582,8 +595,15 @@ DataTypeAndValue Analisys::logI() {/////////////////////////////////////////////
         else  if (t == TTInt)
         {
             type.data.Data_bool = type.data.Data_int && typeDop.data.Data_int;
+
+          
         }
         type.type = TTBool;
+
+        interCode->addTriad(tAnd, type.oper, typeDop.oper);//*****************************************************************************************************    
+        type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+
+
         lex = getCurrentLexeme();
     }
     return type;
@@ -613,7 +633,16 @@ DataTypeAndValue Analisys::eqFunc1() {//////////////////////////////////////////
         }
         type.type = TTBool;
         if (lex.first == tNeq)
-            type.data.Data_bool = !type.data.Data_bool;
+        {  type.data.Data_bool = !type.data.Data_bool;
+
+        interCode->addTriad(tNeq, type.oper, typeDop.oper);//*****************************************************************************************************    
+        }
+        else
+            interCode->addTriad(tEq, type.oper, typeDop.oper);
+
+
+        type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+
         lex = getCurrentLexeme();
     }
     return type;
@@ -642,7 +671,15 @@ DataTypeAndValue Analisys::eqFunc2() {//////////////////////////////////////////
         }
         type.type = TTBool;
         if (lex.first == tMore)
-            type.data.Data_bool = !type.data.Data_bool;
+        {type.data.Data_bool = !type.data.Data_bool;
+        interCode->addTriad(tMore, type.oper, typeDop.oper);//*****************************************************************************************************    
+        }
+        else
+            interCode->addTriad(tLe, type.oper, typeDop.oper);
+
+
+        type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+
         lex = getCurrentLexeme();
     }
     return type;
@@ -670,7 +707,16 @@ DataTypeAndValue Analisys::eqFunc3() {//////////////////////////////////////////
         }
         type.type = TTBool;
         if (lex.first == tLess)
+        {
             type.data.Data_bool = !type.data.Data_bool;
+            interCode->addTriad(tLess, type.oper, typeDop.oper);//*****************************************************************************************************    
+        }
+        else
+            interCode->addTriad(tMe, type.oper, typeDop.oper);
+
+
+        type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+
         lex = getCurrentLexeme();
     }
     return type;
@@ -696,6 +742,7 @@ DataTypeAndValue Analisys::add() {
             {
                 type.data.Data_int = type.data.Data_int +typeDop.data.Data_int;
             }
+            interCode->addTriad(tPlus, type.oper, typeDop.oper);//*****************************************************************************************************         
 
         }
 
@@ -709,10 +756,16 @@ DataTypeAndValue Analisys::add() {
             {
                 type.data.Data_int = type.data.Data_int - typeDop.data.Data_int;
             }
+            interCode->addTriad(tMinus, type.oper, typeDop.oper);//*****************************************************************************************************         
+
         }
 
 
         type.type = TTInt;
+
+      
+        type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+
         lex = getCurrentLexeme();
     }
     return type;
@@ -721,6 +774,8 @@ DataTypeAndValue Analisys::add() {
 DataTypeAndValue Analisys::multiplier() {
     DataTypeAndValue type = logNe();
     Lexem lex = getCurrentLexeme();
+
+
     while (lex.first == tMult || lex.first == tDiv) {
         this->pointer++;
         DataTypeAndValue typeDop = logNe();
@@ -737,7 +792,7 @@ DataTypeAndValue Analisys::multiplier() {
             {
                 type.data.Data_int = type.data.Data_int * typeDop.data.Data_int;
             }
-
+            interCode->addTriad(tMult, type.oper, typeDop.oper);//*****************************************************************************************************  
         }
 
         else  if (lex.first == tDiv) {
@@ -750,10 +805,15 @@ DataTypeAndValue Analisys::multiplier() {
             {
                 type.data.Data_int = type.data.Data_int / typeDop.data.Data_int;
             }
+            interCode->addTriad(tDiv, type.oper, typeDop.oper);//*****************************************************************************************************  
         }
 
 
         type.type = TTInt;
+
+       
+        type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+
         lex = getCurrentLexeme();
     }
     return type;
@@ -769,13 +829,22 @@ DataTypeAndValue Analisys::logNe() {
         this->pointer++;
         type = elementaryExpressionAnalysis();
 
+        
+
+
         if (type.type == TTBool)
             type.data.Data_bool = !type.data.Data_bool;
         else
+        {
             type.data.Data_bool = !type.data.Data_int;
-
+           
+        }
 
             type.type = TTBool;
+
+            interCode->addTriad(tNot, type.oper, Oper{ false, 0, Lexem{1, "", 1} });//*****************************************************************************************************         
+            type.oper = Oper{ true, interCode->getK() - 1, Lexem{1, "", 1} };//***********************************************************************************************************
+      
     }
     else
    type = elementaryExpressionAnalysis();
@@ -845,7 +914,7 @@ DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
         //SEMANTIC>>>>>>>>>>>>>>>>>>>
 
 
-        
+       
         //вызов функции
         if (lexemes[pointer + 1].first == tLs) {
            type= CallFunction();
@@ -855,11 +924,12 @@ DataTypeAndValue Analisys::elementaryExpressionAnalysis() {
         else
         {
             lex = getNextLexeme();
-
           //  typeObject = root->SemGetTypeV(lexemes[pointer - 1]);
           
             type = root->GetValueIden(lexemes[pointer - 1]);
-
+            type.oper = Oper{ false, 0, lexemes[pointer - 1] };//*****************************************
+        
+           
         }
     }
     //(выражение)
@@ -921,8 +991,12 @@ void Analisys::variableAnalysis(TypeObject obj, TypeVar type) {
 
         DataTypeAndValue typeDop = expressionAnalysis();
 
+        typeDop=perevod(root->getLexTypeToVar(lexemes[this->pointer - 4].first), typeDop);
+
         interCode->addTriad(tSave, Oper{ false, 0, lex1 }, typeDop.oper);//*************************************************************************************************8
-      //  root->isAssignable(typeDop.type, lexemes[this->pointer - 3]);
+
+
+        
         root->SetValueIden(lex1, typeDop);
 
         lex = getCurrentLexeme();
@@ -948,6 +1022,10 @@ void Analisys::evalAnalysis() {
 
     //SEMANTIC>>>>>>>>>>>>>>>>>>>
     DataTypeAndValue type1 = expressionAnalysis();
+
+
+
+   // type1 = perevod(root->SemGetTypeF(iden), type1);
 
     interCode->addTriad(tSave, Oper{false, 0, iden }, type1.oper);//*************************************************************************************************8
    // root->isAssignable(type1.type, this->lexemes[pointer - 3]);
