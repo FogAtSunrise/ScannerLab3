@@ -984,11 +984,7 @@ void Analisys::variableAnalysis(TypeObject obj, TypeVar type) {
 
         Lexem lex1 = lexemes[this->pointer - 1];
         this->pointer++;
-        /*root->isAssignable(root->FromConstToType(expressionAnalysis().type), lexemes[this->pointer - 2]);
-        //expressionAnalysis();
-        lex = getCurrentLexeme();
-        */
-
+      
         DataTypeAndValue typeDop = expressionAnalysis();
 
         typeDop=perevod(root->getLexTypeToVar(lexemes[this->pointer - 4].first), typeDop);
