@@ -1,35 +1,22 @@
-
-
-int func1(int h) {
-
-        const bool qwe = true;
-        int p=57;
-
-        switch (6+123)
-        	{
-        	case 6:
-        		int klllp = 7 * 12;
-        		break;
-        	case 15:
-        	    p = 14;
-        	    break;
-		default: 
-break;
-        	}     
-return 2+p;
-    }
-int func2() {
-const int qwe = 123;
+int func1(int ht)
 {
-int DDDD;
+int ret = ht+12;
+return ret;
 }
-return 56;
+
+bool main ()    { 
+
+int rt= 12;
+bool df=true;
+df= (false>12)&& (true || !(12-3));
+bool er = !rt;
+rt = (!df+12)*!rt/5;
+
+func1(12);
+
+return false;
 }
-bool main ()    {      // main 
-   bool yu =  true;
-   func1(26);
-	return yu;
-    }
+
 
 /*
 int a = 100;
